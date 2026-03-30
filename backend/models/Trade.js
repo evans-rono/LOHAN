@@ -11,7 +11,7 @@ const tradeSchema = new mongoose.Schema({
   exitPrice: { type: Number },
   expiryTime: { type: Date, required: true },
   duration: { type: Number, required: true }, // in seconds
-  payoutRate: { type: Number, default: 0.85 },
+  payoutRate: { type: Number, default: 0.97 },
   status: { type: String, enum: ['active', 'won', 'lost', 'cancelled'], default: 'active' },
   profit: { type: Number, default: 0 },
   isDemo: { type: Boolean, default: false }, // ← demo flag

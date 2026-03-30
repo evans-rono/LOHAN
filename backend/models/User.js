@@ -8,9 +8,9 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true, minlength: 6 },
   phone: { type: String, required: true },
-  country: { type: String, default: 'Kenya' },
-  balance: { type: Number, default: 10000 },
-  currency: { type: String, default: 'KES' },
+  country: { type: String, default: 'United States' },
+  balance: { type: Number, default: 0 },        // ← was 10000
+  currency: { type: String, default: 'USD' },   // ← was 'KES'
   isVerified: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
