@@ -1,0 +1,541 @@
+<!-- frontend/pages/deposit.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit & Withdraw - LOHAN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0e1a; --bg2:#111827; --bg3:#1f2937;
+      --text:#f9fafb; --text2:#d1d5db; --muted:#6b7280;
+      --accent:#10b981; --accent-dim:rgba(16,185,129,0.1);
+      --red:#ef4444; --amber:#f59e0b; --blue:#3b82f6;
+      --border:rgba(255,255,255,0.1);
+      --gradient:linear-gradient(135deg,#10b981 0%,#3b82f6 100%);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    .top-nav { position:fixed; top:0; left:0; right:0; height:64px; background:rgba(10,14,26,0.95); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 1.5rem; z-index:100; }
+    .logo { font-size:1.25rem; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; cursor:pointer; }
+    .nav-btn { background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-size:0.875rem; margin-left:0.5rem; }
+
+    .app-container { display:flex; padding-top:64px; min-height:100vh; }
+    .sidebar { width:260px; background:var(--bg2); border-right:1px solid var(--border); padding:1.5rem; position:fixed; height:calc(100vh - 64px); }
+    .sidebar-section { font-size:0.7rem; font-weight:600; color:var(--muted); letter-spacing:0.1em; margin:1.5rem 0 0.75rem; }
+    .sidebar-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border-radius:8px; cursor:pointer; transition:all 0.2s; margin-bottom:0.25rem; color:var(--text2); font-size:0.9rem; }
+    .sidebar-item:hover, .sidebar-item.active { background:rgba(255,255,255,0.05); color:var(--text); }
+    .sidebar-item.active { background:var(--accent-dim); color:var(--accent); }
+
+    .main-content { flex:1; margin-left:260px; padding:1.5rem; max-width:860px; }
+    .page-title { font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; }
+
+    .tabs { display:flex; gap:0.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem; }
+    .tab { background:none; border:none; color:var(--muted); padding:0.75rem 1.25rem; border-radius:8px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+    .tab:hover { color:var(--text); }
+    .tab.active { background:var(--accent-dim); color:var(--accent); }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1rem; }
+    .card-title { font-size:1.1rem; font-weight:600; margin-bottom:1.25rem; }
+
+    .method-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+    .method-card { background:var(--bg3); border:2px solid transparent; border-radius:10px; padding:1.25rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .method-card:hover { border-color:var(--muted); }
+    .method-card.selected { border-color:var(--accent); background:var(--accent-dim); }
+    .method-icon { font-size:2rem; margin-bottom:0.5rem; }
+    .method-name { font-size:0.875rem; font-weight:600; }
+    .method-time { font-size:0.75rem; color:var(--muted); margin-top:0.25rem; }
+
+    .form-group { margin-bottom:1.25rem; }
+    .form-label { display:block; font-size:0.75rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem; letter-spacing:0.05em; }
+    .form-input, .form-select { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:0.875rem 1rem; color:var(--text); font-size:0.95rem; transition:all 0.2s; }
+    .form-input:focus, .form-select:focus { outline:none; border-color:var(--accent); }
+    .form-input::placeholder { color:var(--muted); }
+    .form-select option { background:var(--bg2); }
+
+    .amount-presets { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
+    .preset-btn { flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text2); padding:0.625rem; border-radius:6px; cursor:pointer; font-size:0.875rem; transition:all 0.2s; }
+    .preset-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .preset-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+
+    .info-box { background:var(--accent-dim); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:1rem; font-size:0.875rem; color:var(--text2); line-height:1.5; margin:1rem 0; }
+    .info-box.blue { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); }
+    .info-box.amber { background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.3); }
+
+    .btn-confirm { width:100%; background:var(--gradient); border:none; color:white; padding:1rem; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.3s; }
+    .btn-confirm:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(16,185,129,0.3); }
+    .btn-confirm:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-confirm.red { background:linear-gradient(135deg,var(--red) 0%,#dc2626 100%); }
+    .btn-confirm.red:hover { box-shadow:0 10px 30px rgba(239,68,68,0.3); }
+
+    .crypto-address { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:1rem; font-family:monospace; font-size:0.85rem; word-break:break-all; color:var(--accent); letter-spacing:0.02em; margin-bottom:0.5rem; }
+    .copy-btn { background:var(--bg3); border:1px solid var(--border); color:var(--text2); padding:0.5rem 1rem; border-radius:6px; cursor:pointer; font-size:0.875rem; transition:all 0.2s; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+    .payment-form { display:none; }
+    .payment-form.active { display:block; }
+
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; background:var(--bg3); border-radius:8px; padding:1.25rem; margin-bottom:1.25rem; }
+    .summary-item .label { font-size:0.7rem; color:var(--muted); margin-bottom:0.25rem; }
+    .summary-item .value { font-size:1.1rem; font-weight:700; }
+
+    table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+    th { text-align:left; padding:0.75rem; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); }
+    td { padding:0.75rem; border-bottom:1px solid var(--border); }
+    .badge { display:inline-flex; padding:0.25rem 0.75rem; border-radius:20px; font-size:0.75rem; font-weight:600; }
+    .badge-success { background:var(--accent-dim); color:var(--accent); }
+    .badge-pending { background:rgba(245,158,11,0.15); color:var(--amber); }
+
+    .disclaimer { background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:1rem; font-size:0.875rem; color:var(--text2); line-height:1.5; }
+
+    .toast { position:fixed; bottom:2rem; right:2rem; background:var(--bg2); border:1px solid var(--border); border-left:4px solid var(--accent); padding:1rem 1.5rem; border-radius:8px; z-index:1000; transform:translateY(100px); opacity:0; transition:all 0.3s; }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.error { border-left-color:var(--red); }
+
+    @media(max-width:1024px) { .sidebar{display:none} .main-content{margin-left:0} .method-grid{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:640px) { .method-grid{grid-template-columns:1fr} .summary-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="logo" onclick="window.location.href='/pages/dashboard.html'">LOHAN</div>
+    <div>
+      <button class="nav-btn" onclick="window.location.href='/pages/dashboard.html'">← Dashboard</button>
+      <button class="nav-btn" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-section">TRADING</div>
+      <div class="sidebar-item" onclick="window.location.href='/pages/dashboard.html'"><span>◈</span> Dashboard</div>
+      <div class="sidebar-item" onclick="window.location.href='/pages/dashboard.html'"><span>📈</span> Trade Now</div>
+      <div class="sidebar-section">ACCOUNT</div>
+      <div class="sidebar-item active"><span>💰</span> Deposit / Withdraw</div>
+    </aside>
+
+    <main class="main-content">
+      <h1 class="page-title">Deposits & Withdrawals</h1>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('deposit', this)">Deposit</button>
+        <button class="tab" onclick="switchTab('withdraw', this)">Withdraw</button>
+        <button class="tab" onclick="switchTab('history', this)">Transaction History</button>
+      </div>
+
+      <!-- ── DEPOSIT TAB ── -->
+      <div id="deposit" class="tab-content active">
+        <div class="form-label" style="margin-bottom:0.75rem">SELECT PAYMENT METHOD</div>
+        <div class="method-grid">
+          <div class="method-card selected" onclick="selectMethod(this,'mpesa')">
+            <div class="method-icon">📱</div>
+            <div class="method-name">M-Pesa</div>
+            <div class="method-time">Instant</div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'card')">
+            <div class="method-icon">💳</div>
+            <div class="method-name">Visa / Mastercard</div>
+            <div class="method-time">Instant</div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'bank')">
+            <div class="method-icon">🏦</div>
+            <div class="method-name">Bank Transfer</div>
+            <div class="method-time">1–2 days</div>
+          </div>
+          <div class="method-card" onclick="selectMethod(this,'crypto')">
+            <div class="method-icon">₿</div>
+            <div class="method-name">Crypto (USDT)</div>
+            <div class="method-time">~10 mins</div>
+          </div>
+        </div>
+
+        <!-- M-PESA FORM -->
+        <div id="form-mpesa" class="card payment-form active">
+          <div class="card-title">📱 M-Pesa STK Push</div>
+          <div class="form-group">
+            <label class="form-label">M-PESA PHONE NUMBER</label>
+            <input type="tel" class="form-input" id="mpesa-phone" placeholder="+254 7XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">AMOUNT (USD)</label>
+            <div class="amount-presets">
+              <button class="preset-btn active" onclick="setDepAmount(500,this)">500</button>
+              <button class="preset-btn" onclick="setDepAmount(1000,this)">1,000</button>
+              <button class="preset-btn" onclick="setDepAmount(2500,this)">2,500</button>
+              <button class="preset-btn" onclick="setDepAmount(5000,this)">5,000</button>
+              <button class="preset-btn" onclick="setDepAmount(10000,this)">10,000</button>
+            </div>
+            <input type="number" class="form-input" id="deposit-amount-mpesa" value="500" min="500">
+          </div>
+          <div class="info-box">
+            <strong>Minimum:</strong> USD 500 &nbsp;|&nbsp; <strong>Maximum:</strong> USD 150,000<br>
+            Funds credited instantly. No fees charged by PeakTrader.
+          </div>
+          <button class="btn-confirm" onclick="processDeposit('mpesa')">Deposit via M-Pesa</button>
+        </div>
+
+        <!-- CARD FORM -->
+        <div id="form-card" class="card payment-form">
+          <div class="card-title">💳 Card Payment</div>
+          <div class="form-group">
+            <label class="form-label">CARD NUMBER</label>
+            <input type="text" class="form-input" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div class="form-group">
+              <label class="form-label">EXPIRY DATE</label>
+              <input type="text" class="form-input" id="card-expiry" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVV</label>
+              <input type="text" class="form-input" id="card-cvv" placeholder="123" maxlength="4">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CARDHOLDER NAME</label>
+            <input type="text" class="form-input" id="card-name" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label class="form-label">AMOUNT (USD)</label>
+            <div class="amount-presets">
+              <button class="preset-btn" onclick="setDepAmountCard(1000,this)">1,000</button>
+              <button class="preset-btn active" onclick="setDepAmountCard(5000,this)">5,000</button>
+              <button class="preset-btn" onclick="setDepAmountCard(10000,this)">10,000</button>
+              <button class="preset-btn" onclick="setDepAmountCard(25000,this)">25,000</button>
+            </div>
+            <input type="number" class="form-input" id="deposit-amount-card" value="5000" min="1000">
+          </div>
+          <div class="info-box blue">
+            🔒 Your card details are encrypted and never stored on our servers.
+          </div>
+          <button class="btn-confirm" onclick="processDeposit('card')">Pay with Card</button>
+        </div>
+
+        <!-- BANK FORM -->
+        <div id="form-bank" class="card payment-form">
+          <div class="card-title">🏦 Bank Transfer</div>
+          <div class="info-box amber" style="margin-bottom:1.25rem">
+            <strong style="color:var(--amber)">Transfer funds to:</strong><br><br>
+            <strong>Bank:</strong> Equity Bank Kenya<br>
+            <strong>Account Name:</strong> PeakTrader Ltd<br>
+            <strong>Account Number:</strong> 1234567890123<br>
+            <strong>Branch:</strong> Nairobi — Head Office<br>
+            <strong>Swift Code:</strong> EQBLKENA
+          </div>
+          <div class="form-group">
+            <label class="form-label">AMOUNT YOU ARE SENDING (USD)</label>
+            <input type="number" class="form-input" id="deposit-amount-bank" value="10000" min="1000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">YOUR TRANSACTION REFERENCE / RECEIPT NO.</label>
+            <input type="text" class="form-input" id="bank-ref" placeholder="e.g. TXN123456789">
+          </div>
+          <div class="form-group">
+            <label class="form-label">YOUR BANK NAME</label>
+            <input type="text" class="form-input" id="bank-name" placeholder="e.g. KCB Bank">
+          </div>
+          <div class="info-box">
+            After transfer, submit this form. Your account will be credited within 1–2 business days after verification.
+          </div>
+          <button class="btn-confirm" onclick="processDeposit('bank')">Submit Bank Transfer</button>
+        </div>
+
+        <!-- CRYPTO FORM -->
+        <div id="form-crypto" class="card payment-form">
+          <div class="card-title">₿ Crypto Deposit (USDT TRC-20)</div>
+          <div class="form-group">
+            <label class="form-label">SEND USDT (TRC-20) TO THIS ADDRESS</label>
+            <div class="crypto-address" id="crypto-address">TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE</div>
+            <button class="copy-btn" onclick="copyAddress()">📋 Copy Address</button>
+          </div>
+          <div class="form-group" style="margin-top:1rem">
+            <label class="form-label">AMOUNT IN USDT</label>
+            <div class="amount-presets">
+              <button class="preset-btn" onclick="setDepAmountCrypto(10,this)">$10</button>
+              <button class="preset-btn active" onclick="setDepAmountCrypto(50,this)">$50</button>
+              <button class="preset-btn" onclick="setDepAmountCrypto(100,this)">$100</button>
+              <button class="preset-btn" onclick="setDepAmountCrypto(500,this)">$500</button>
+            </div>
+            <input type="number" class="form-input" id="deposit-amount-crypto" value="50" min="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">YOUR TRANSACTION HASH (TXID)</label>
+            <input type="text" class="form-input" id="crypto-txid" placeholder="Paste your transaction hash here">
+          </div>
+          <div class="info-box amber">
+            ⚠️ Only send <strong>USDT on the TRC-20 network</strong>. Sending on the wrong network will result in permanent loss of funds.
+          </div>
+          <button class="btn-confirm" onclick="processDeposit('crypto')">Confirm Crypto Deposit</button>
+        </div>
+
+        <div class="disclaimer" style="margin-top:1rem">
+          <strong>⚠️ Risk Warning:</strong> Binary options trading involves significant risk of loss. Only deposit money you can afford to lose.
+        </div>
+      </div>
+
+      <!-- ── WITHDRAW TAB ── -->
+      <div id="withdraw" class="tab-content">
+        <div class="card">
+          <div class="card-title">Withdraw Funds</div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="label">AVAILABLE BALANCE</div>
+              <div class="value" style="color:var(--accent)" id="avail-balance">USD 0</div>
+            </div>
+            <div class="summary-item">
+              <div class="label">IN OPEN TRADES</div>
+              <div class="value" style="color:var(--amber)">USD 0</div>
+            </div>
+            <div class="summary-item">
+              <div class="label">WITHDRAWABLE</div>
+              <div class="value" id="withdrawable">USD 0</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">WITHDRAWAL METHOD</label>
+            <select class="form-select" id="withdraw-method">
+              <option value="mpesa">M-Pesa</option>
+              <option value="bank">Bank Account</option>
+              <option value="crypto">USDT Wallet</option>
+            </select>
+          </div>
+          <div class="form-group" id="withdraw-mpesa-field">
+            <label class="form-label">M-PESA PHONE NUMBER</label>
+            <input type="tel" class="form-input" id="withdraw-phone" placeholder="+254 7XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">AMOUNT TO WITHDRAW (USD)</label>
+            <div class="amount-presets">
+              <button class="preset-btn" onclick="setWitAmount(1000,this)">1,000</button>
+              <button class="preset-btn" onclick="setWitAmount(5000,this)">5,000</button>
+              <button class="preset-btn" onclick="setWitAmount(10000,this)">10,000</button>
+              <button class="preset-btn" onclick="setWitAmount('all',this)">All</button>
+            </div>
+            <input type="number" class="form-input" id="withdraw-amount" value="1000" min="500" style="margin-top:0.5rem">
+          </div>
+          <div class="info-box blue">
+            <strong style="color:var(--blue)">Processing time:</strong> M-Pesa withdrawals processed within 24 hours.
+          </div>
+          <button class="btn-confirm red" onclick="processWithdrawal()">Request Withdrawal</button>
+        </div>
+      </div>
+
+      <!-- ── HISTORY TAB ── -->
+      <div id="history" class="tab-content">
+        <div class="card">
+          <div class="card-title">Transaction History</div>
+          <table>
+            <thead>
+              <tr><th>DATE</th><th>TYPE</th><th>METHOD</th><th>AMOUNT</th><th>STATUS</th><th>REFERENCE</th></tr>
+            </thead>
+            <tbody id="transaction-list">
+              <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">
+    <div style="font-weight:600;margin-bottom:0.25rem" id="toast-title">Done</div>
+    <div id="toast-msg" style="font-size:0.875rem;color:var(--text2)"></div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script>
+    if (!localStorage.getItem('token')) window.location.href = '/pages/login.html';
+
+    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    let currentMethod = 'mpesa';
+
+    // Init balance display
+    updateBalance(user.balance || 0);
+
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(tab).classList.add('active');
+      if (tab === 'history') loadTransactions();
+    }
+
+    function selectMethod(card, method) {
+      document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.payment-form').forEach(f => f.classList.remove('active'));
+      card.classList.add('selected');
+      currentMethod = method;
+      document.getElementById('form-' + method).classList.add('active');
+    }
+
+    function setDepAmount(amount, btn) {
+      document.querySelectorAll('#form-mpesa .preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('deposit-amount-mpesa').value = amount;
+    }
+
+    function setDepAmountCard(amount, btn) {
+      document.querySelectorAll('#form-card .preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('deposit-amount-card').value = amount;
+    }
+
+    function setDepAmountCrypto(amount, btn) {
+      document.querySelectorAll('#form-crypto .preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('deposit-amount-crypto').value = amount;
+    }
+
+    function setWitAmount(amount, btn) {
+      document.querySelectorAll('#withdraw .preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('withdraw-amount').value = amount === 'all' ? (user.balance || 0) : amount;
+    }
+
+    function formatCard(input) {
+      let v = input.value.replace(/\D/g, '').substring(0, 16);
+      input.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function copyAddress() {
+      const addr = document.getElementById('crypto-address').textContent;
+      navigator.clipboard.writeText(addr).then(() => showToast('Copied!', 'Wallet address copied to clipboard'));
+    }
+
+    async function processDeposit(method) {
+      const btn = document.querySelector('#form-' + method + ' .btn-confirm');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        let payload = { method };
+
+        if (method === 'mpesa') {
+          payload.amount = parseInt(document.getElementById('deposit-amount-mpesa').value);
+          payload.phoneNumber = document.getElementById('mpesa-phone').value;
+          if (!payload.phoneNumber) throw new Error('Please enter your M-Pesa phone number');
+          if (payload.amount < 500) throw new Error('Minimum deposit is KES 500');
+        } else if (method === 'card') {
+          payload.amount = parseInt(document.getElementById('deposit-amount-card').value);
+          payload.cardNumber = document.getElementById('card-number').value.replace(/\s/g,'');
+          payload.cardName = document.getElementById('card-name').value;
+          if (!payload.cardNumber || payload.cardNumber.length < 16) throw new Error('Enter a valid card number');
+          if (!payload.cardName) throw new Error('Enter cardholder name');
+          if (payload.amount < 1000) throw new Error('Minimum card deposit is KES 1,000');
+        } else if (method === 'bank') {
+          payload.amount = parseInt(document.getElementById('deposit-amount-bank').value);
+          payload.reference = document.getElementById('bank-ref').value;
+          payload.bankName = document.getElementById('bank-name').value;
+          if (!payload.reference) throw new Error('Enter your bank transaction reference');
+          if (payload.amount < 1000) throw new Error('Minimum bank deposit is KES 1,000');
+        } else if (method === 'crypto') {
+          const usdtAmount = parseFloat(document.getElementById('deposit-amount-crypto').value);
+          payload.amount = Math.round(usdtAmount * 130); // approx KES conversion
+          payload.txid = document.getElementById('crypto-txid').value;
+          if (!payload.txid) throw new Error('Enter your transaction hash (TXID)');
+          if (usdtAmount < 10) throw new Error('Minimum crypto deposit is $10 USDT');
+        }
+
+        await api.deposit(payload);
+        showToast('Deposit Submitted ✓', getSuccessMessage(method));
+        setTimeout(() => loadTransactions(), 1500);
+      } catch (err) {
+        showToast('Error', err.message || 'Deposit failed', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = getBtnLabel(method);
+      }
+    }
+
+    function getSuccessMessage(method) {
+      const msgs = {
+        mpesa: 'Check your phone and enter your M-Pesa PIN.',
+        card: 'Payment processed. Funds will reflect shortly.',
+        bank: 'Submission received. Account credited within 1–2 days after verification.',
+        crypto: 'Deposit submitted. Will be credited after blockchain confirmation.'
+      };
+      return msgs[method];
+    }
+
+    function getBtnLabel(method) {
+      const labels = {
+        mpesa: 'Deposit via M-Pesa',
+        card: 'Pay with Card',
+        bank: 'Submit Bank Transfer',
+        crypto: 'Confirm Crypto Deposit'
+      };
+      return labels[method];
+    }
+
+    async function processWithdrawal() {
+      const amount = parseInt(document.getElementById('withdraw-amount').value);
+      const method = document.getElementById('withdraw-method').value;
+
+      if (amount < 500) return showToast('Error', 'Minimum withdrawal is KES 500', 'error');
+      if (amount > (user.balance || 0)) return showToast('Error', 'Insufficient balance', 'error');
+
+      try {
+        const res = await api.withdraw({ amount, method });
+        showToast('Withdrawal Requested ✓', 'You will receive funds within 24 hours.');
+        user.balance = (user.balance || 0) - amount;
+        localStorage.setItem('user', JSON.stringify(user));
+        updateBalance(user.balance);
+      } catch (err) {
+        showToast('Error', err.message || 'Withdrawal failed', 'error');
+      }
+    }
+
+    async function loadTransactions() {
+      try {
+        const txns = await api.getTransactions();
+        const tbody = document.getElementById('transaction-list');
+        if (!txns.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No transactions yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = txns.map(t => `
+          <tr>
+            <td style="color:var(--muted);font-size:0.875rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+            <td><span class="badge badge-${t.type === 'deposit' ? 'success' : 'pending'}">${t.type.toUpperCase()}</span></td>
+            <td>${t.method}</td>
+            <td>KES ${Math.abs(t.amount).toLocaleString()}</td>
+            <td style="color:${t.status === 'completed' ? 'var(--accent)' : 'var(--amber)'};font-weight:600">${t.status.toUpperCase()}</td>
+            <td style="font-family:monospace;font-size:0.75rem;color:var(--muted)">${t.reference || '—'}</td>
+          </tr>`).join('');
+      } catch (err) {
+        console.error('Failed to load transactions', err);
+      }
+    }
+
+    function updateBalance(balance) {
+      user.balance = balance;
+      document.getElementById('avail-balance').textContent = `KES ${Number(balance).toLocaleString()}`;
+      document.getElementById('withdrawable').textContent = `KES ${Number(balance).toLocaleString()}`;
+    }
+
+    function showToast(title, msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-msg').textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/pages/login.html';
+    }
+
+    // Show M-Pesa phone field only for mpesa withdrawal
+    document.getElementById('withdraw-method').addEventListener('change', function() {
+      document.getElementById('withdraw-mpesa-field').style.display =
+        this.value === 'mpesa' ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>

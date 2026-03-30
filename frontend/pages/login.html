@@ -1,0 +1,278 @@
+<!-- frontend/pages/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - LOHAN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #111827;
+      --bg3: #1f2937;
+      --text: #f9fafb;
+      --text2: #d1d5db;
+      --muted: #6b7280;
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.1);
+      --red: #ef4444;
+      --border: rgba(255,255,255,0.1);
+      --gradient: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    nav {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+    }
+    
+    .auth-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .auth-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    
+    .auth-logo {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    
+    .auth-sub {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+    
+    .form-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    
+    .form-input::placeholder {
+      color: var(--muted);
+    }
+    
+    .btn-full {
+      width: 100%;
+      background: var(--gradient);
+      border: none;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    
+    .btn-full:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-full:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .auth-divider {
+      text-align: center;
+      margin: 1.5rem 0;
+      position: relative;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background: var(--border);
+    }
+    
+    .auth-divider::before { left: 0; }
+    .auth-divider::after { right: 0; }
+    
+    .auth-switch {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .auth-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .auth-link:hover {
+      text-decoration: underline;
+    }
+    
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--red);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo" onclick="window.location.href='/'">LOHAN</div>
+    <button class="auth-link" onclick="window.location.href='/'">← Back to Home</button>
+  </nav>
+  
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">LOHAN</div>
+      <div class="auth-sub">Sign in to your trading account</div>
+      
+      <div class="error-msg" id="error-msg"></div>
+      
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">EMAIL ADDRESS</label>
+          <input type="email" class="form-input" id="email" placeholder="trader@example.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">PASSWORD</label>
+          <input type="password" class="form-input" id="password" placeholder="••••••••" required>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--text2); cursor: pointer;">
+            <input type="checkbox" style="accent-color: var(--accent);"> Remember me
+          </label>
+          <button type="button" class="auth-link">Forgot password?</button>
+        </div>
+        
+        <button type="submit" class="btn-full" id="submit-btn">Sign In</button>
+      </form>
+      
+      <div class="auth-divider">or</div>
+      
+      <div class="auth-switch">
+        Don't have an account? <a href="/pages/register.html" class="auth-link">Create one free</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script>
+    // Check if already logged in
+    if (localStorage.getItem('token')) {
+      window.location.href = '/pages/dashboard.html';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const errorMsg = document.getElementById('error-msg');
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+      errorMsg.classList.remove('show');
+      
+      try {
+        const response = await api.login({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        });
+        
+        if (response.success) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
+          window.location.href = '/pages/dashboard.html';
+        }
+      } catch (error) {
+        errorMsg.textContent = error.message || 'Login failed. Please try again.';
+        errorMsg.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
