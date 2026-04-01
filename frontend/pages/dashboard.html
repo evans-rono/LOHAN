@@ -18,6 +18,7 @@
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     html,body { height:100%; overflow:hidden; }
+    #digit-row > div { overflow:visible !important; }
     body { font-family:'Inter',sans-serif; background:var(--bg4); color:var(--text); display:flex; flex-direction:column; }
 
     /* NAV */
@@ -117,21 +118,34 @@
     .live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; animation:blink 1.5s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* CHART TOOLBAR (icon buttons in topbar) */
+    /* CHART TOOLBAR */
     .chart-tool-sep { width:1px; height:20px; background:var(--border); margin:0 2px; }
     .chart-tool-btn { width:28px; height:28px; background:none; border:none; border-radius:5px; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:all 0.2s; position:relative; }
     .chart-tool-btn:hover { background:rgba(255,255,255,0.06); color:var(--text); }
     .chart-tool-btn.active { background:var(--accent-dim); color:var(--accent); }
     .chart-tool-btn[title]:hover::after { content:attr(title); position:absolute; bottom:-26px; left:50%; transform:translateX(-50%); background:var(--bg3); color:var(--text2); font-size:0.62rem; padding:2px 6px; border-radius:4px; white-space:nowrap; pointer-events:none; z-index:100; border:1px solid var(--border); }
 
-    /* ZOOM CONTROLS (in topbar now) */
+    /* ZOOM CONTROLS */
     .zoom-group { display:flex; background:var(--bg3); border-radius:6px; padding:2px; gap:1px; }
     .zoom-btn { width:24px; height:24px; background:none; border:none; border-radius:4px; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:all 0.2s; font-family:'Inter',sans-serif; }
     .zoom-btn:hover { background:rgba(255,255,255,0.08); color:var(--text); }
 
     .chart-canvas-wrap { flex:1; position:relative; background:var(--bg4); }
     #priceChart { width:100% !important; height:100% !important; }
-    #asset-menu { display:none; position:absolute; top:96px; left:220px; background:var(--bg2); border:1px solid var(--border); border-radius:10px; z-index:300; min-width:240px; max-height:480px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+    /* Asset modal styles */
+    .cat-icon { width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;font-size:1rem;color:var(--muted);transition:all 0.2s;user-select:none; }
+    .cat-icon:hover { background:rgba(255,255,255,0.07);color:var(--text); }
+    .cat-icon.active { background:var(--accent-dim);color:var(--accent); }
+    .asset-row { display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0.85rem;cursor:pointer;transition:background 0.15s;border-bottom:1px solid rgba(255,255,255,0.04); }
+    .asset-row:hover { background:rgba(255,255,255,0.04); }
+    .asset-row.selected { background:var(--accent-dim); }
+    .asset-row-icon { width:30px;height:30px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0; }
+    .asset-row-name { font-size:0.82rem;font-weight:600;color:var(--text); }
+    .asset-row-sub { font-size:0.68rem;color:var(--muted);margin-top:0.08rem; }
+    .asset-row-price { margin-left:auto;text-align:right; }
+    .asset-row-val { font-size:0.78rem;font-family:'JetBrains Mono',monospace;font-weight:600; }
+    .asset-row-chg { font-size:0.65rem;margin-top:0.05rem; }
+    .cat-header { padding:0.45rem 0.85rem;font-size:0.65rem;color:var(--muted);letter-spacing:0.09em;font-weight:600;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border); }
 
     /* RIGHT PANEL */
     .right-panel { width:280px; background:var(--bg2); border-left:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
@@ -163,6 +177,12 @@
     .payout-key { font-size:0.72rem; color:var(--muted); }
     .payout-val { font-size:0.82rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
     .payout-val.green { color:var(--accent); }
+    .trade-cat-btn { display:flex;align-items:center;gap:0.65rem;padding:0.55rem 0.7rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s; }
+    .trade-cat-btn:hover { border-color:var(--muted); }
+    .trade-cat-btn.active { border-color:var(--accent);background:var(--accent-dim); }
+    .digit-sel-btn { background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:0.45rem;text-align:center;cursor:pointer;font-size:0.85rem;font-weight:700;transition:all 0.2s; }
+    .digit-sel-btn:hover { border-color:var(--muted); }
+    .digit-sel-btn.active { border-color:var(--accent);background:var(--accent-dim);color:var(--accent); }
     .trade-btns { display:grid; grid-template-columns:1fr 1fr; gap:0.55rem; }
     .btn-call { background:var(--accent); border:none; color:#000; padding:0.8rem; border-radius:9px; font-size:0.88rem; font-weight:800; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:0.12rem; }
     .btn-call:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(16,185,129,0.35); }
@@ -203,14 +223,14 @@
       <button class="mode-btn real-active" id="btn-real" onclick="switchMode('real')">Real</button>
       <button class="mode-btn inactive"    id="btn-demo" onclick="switchMode('demo')">Demo</button>
     </div>
-    <div class="balance-chip" id="balance-chip">USD <span id="header-balance">0.00</span></div>
+    <div class="balance-chip" id="balance-chip">$ <span id="header-balance">0.00</span></div>
     <button class="deposit-btn" id="deposit-nav-btn" onclick="window.location.href='/pages/deposit.html'">+ Deposit</button>
     <div style="position:relative">
       <div class="icon-btn" onclick="togglePanel('notif-panel')">🔔<div class="badge-dot" id="notif-badge"></div></div>
       <div class="dropdown" id="notif-panel" style="width:295px">
         <div class="notif-header"><span class="notif-title">Notifications</span><button class="notif-clear" onclick="clearNotifs()">Mark all read</button></div>
         <div id="notif-list">
-          <div class="notif-item"><div class="notif-dot green"></div><div><div class="notif-text">Your deposit of USD 1,000 was confirmed.</div><div class="notif-time">2 min ago</div></div></div>
+          <div class="notif-item"><div class="notif-dot green"></div><div><div class="notif-text">Your deposit of $10.00 was confirmed.</div><div class="notif-time">2 min ago</div></div></div>
           <div class="notif-item"><div class="notif-dot amber"></div><div><div class="notif-text">Trade on EUR/USD expired — result pending.</div><div class="notif-time">10 min ago</div></div></div>
           <div class="notif-item"><div class="notif-dot blue"></div><div><div class="notif-text">Welcome to Lohan! Complete your profile to get started.</div><div class="notif-time">Today</div></div></div>
         </div>
@@ -236,7 +256,7 @@
       <div class="dropdown" id="profile-panel" style="width:235px">
         <div class="pd-header">
           <div class="pd-name" id="pd-name">User</div>
-          <div class="pd-email" id="pd-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8ffafceafdcfeaf7eee2ffe3eaa1ece0e2">[email&#160;protected]</a></div>
+          <div class="pd-email" id="pd-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f683859384b6938e979b869a93d895999b">[email&#160;protected]</a></div>
         </div>
         <div class="pd-item" onclick="openEditProfile()"><span class="pd-icon">👤</span>Edit Profile</div>
         <div class="pd-item" onclick="openModal('modal-password')"><span class="pd-icon">🔒</span>Change Password</div>
@@ -251,7 +271,7 @@
 </nav>
 
 <!-- DEMO BANNER -->
-<div class="demo-banner" id="demo-banner">🎮 Demo Mode — Trading with USD <span id="demo-bal-banner">10,000</span> virtual funds. <span style="cursor:pointer;text-decoration:underline" onclick="resetDemo()">Reset</span></div>
+<div class="demo-banner" id="demo-banner">🎮 Demo Mode — Trading with $<span id="demo-bal-banner">10,000</span> virtual funds. <span style="cursor:pointer;text-decoration:underline" onclick="resetDemo()">Reset</span></div>
 
 <div class="app-body">
 
@@ -277,7 +297,6 @@
 
   <!-- CENTER: Chart -->
   <div class="chart-area">
-    <!-- CHART TOPBAR with all tools inline -->
     <div class="chart-topbar">
       <!-- Asset selector -->
       <div class="asset-pill" onclick="toggleAssetMenu()">
@@ -338,10 +357,29 @@
       <div class="live-pill"><div class="live-dot"></div>LIVE</div>
     </div>
 
-    <!-- Asset dropdown -->
-    <div id="asset-menu">
-      <div style="padding:0.45rem 0.75rem;font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;border-bottom:1px solid var(--border)">SELECT ASSET</div>
-      <div id="asset-list"></div>
+    <!-- Asset Selector Modal (Deriv-style) -->
+    <div id="asset-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5)" onclick="if(event.target===this)closeAssetModal()">
+      <div style="position:absolute;top:96px;left:230px;width:310px;height:500px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6)">
+        <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <span style="font-size:0.85rem;font-weight:700">Select Market</span>
+          <button onclick="closeAssetModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0">✕</button>
+        </div>
+        <div style="padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);flex-shrink:0">
+          <input id="asset-search" type="text" placeholder="🔍  Search markets..." oninput="filterAssets(this.value)"
+            style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div style="display:flex;flex:1;overflow:hidden">
+          <div style="width:44px;background:var(--bg3);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:0.5rem 0;gap:0.3rem;flex-shrink:0">
+            <div class="cat-icon active" onclick="setAssetCat('all',this)"       title="All">⊞</div>
+            <div class="cat-icon"        onclick="setAssetCat('forex',this)"     title="Forex">💱</div>
+            <div class="cat-icon"        onclick="setAssetCat('crypto',this)"    title="Crypto">₿</div>
+            <div class="cat-icon"        onclick="setAssetCat('commodity',this)" title="Commodities">🥇</div>
+            <div class="cat-icon"        onclick="setAssetCat('synthetic',this)" title="Synthetic">📊</div>
+          </div>
+          <div style="flex:1;overflow-y:auto" id="asset-modal-list"></div>
+        </div>
+      </div>
     </div>
 
     <div class="chart-canvas-wrap">
@@ -352,7 +390,7 @@
     <div id="x-axis" style="height:26px;background:var(--bg4);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 72px 0 10px;flex-shrink:0;overflow:hidden;position:relative"></div>
 
     <!-- Last-digit bubbles -->
-    <div id="digit-row" style="height:70px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;padding:0 1rem;overflow:hidden"></div>
+    <div id="digit-row" style="height:68px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;padding:0 0.5rem;overflow:hidden"></div>
   </div>
 
   <!-- RIGHT: Trade Panel -->
@@ -360,53 +398,42 @@
     <div class="rp-section">
       <div class="rp-label">ASSET</div>
       <select class="asset-selector" id="trade-asset" onchange="changeAsset(this.value)">
-        <optgroup label="── Synthetic (1s)">
-          <option value="Volatility 10 (1s) Index">Volatility 10 (1s) Index</option>
-          <option value="Volatility 15 (1s) Index">Volatility 15 (1s) Index</option>
-          <option value="Volatility 25 (1s) Index">Volatility 25 (1s) Index</option>
-          <option value="Volatility 30 (1s) Index">Volatility 30 (1s) Index</option>
-          <option value="Volatility 50 (1s) Index">Volatility 50 (1s) Index</option>
-          <option value="Volatility 75 (1s) Index">Volatility 75 (1s) Index</option>
-          <option value="Volatility 90 (1s) Index">Volatility 90 (1s) Index</option>
-          <option value="Volatility 100 (1s) Index">Volatility 100 (1s) Index</option>
-        </optgroup>
-        <optgroup label="── Synthetic">
-          <option value="Volatility 10 Index">Volatility 10 Index</option>
-          <option value="Volatility 15 Index">Volatility 15 Index</option>
-          <option value="Volatility 25 Index">Volatility 25 Index</option>
-          <option value="Volatility 30 Index">Volatility 30 Index</option>
-          <option value="Volatility 50 Index">Volatility 50 Index</option>
-          <option value="Volatility 75 Index">Volatility 75 Index</option>
-          <option value="Volatility 90 Index">Volatility 90 Index</option>
-          <option value="Volatility 100 Index">Volatility 100 Index</option>
-        </optgroup>
-        <optgroup label="── Forex">
-          <option value="EUR/USD">EUR/USD</option>
-          <option value="GBP/USD">GBP/USD</option>
-          <option value="USD/JPY">USD/JPY</option>
-          <option value="AUD/USD">AUD/USD</option>
-          <option value="USD/CHF">USD/CHF</option>
-        </optgroup>
-        <optgroup label="── Crypto">
-          <option value="BTC/USD">BTC/USD</option>
-          <option value="ETH/USD">ETH/USD</option>
-          <option value="LTC/USD">LTC/USD</option>
-        </optgroup>
-        <optgroup label="── Commodities">
-          <option value="GOLD">GOLD</option>
-          <option value="SILVER">SILVER</option>
-          <option value="OIL">OIL</option>
-        </optgroup>
+        <option value="EUR/USD">EUR/USD — Forex</option>
+        <option value="GBP/USD">GBP/USD — Forex</option>
+        <option value="BTC/USD">BTC/USD — Crypto</option>
+        <option value="ETH/USD">ETH/USD — Crypto</option>
+        <option value="GOLD">GOLD — Commodity</option>
+        <option value="OIL">OIL — Commodity</option>
+        <option value="Volatility 75">Volatility 75 — Synthetic</option>
+        <option value="Volatility 10">Volatility 10 — Synthetic</option>
       </select>
     </div>
+    <!-- TRADE CATEGORY -->
     <div class="rp-section">
       <div class="rp-label">TRADE TYPE</div>
-      <div class="trade-type-row">
-        <div class="trade-type-btn active" onclick="setTradeType(this)">Binary</div>
-        <div class="trade-type-btn"        onclick="setTradeType(this)">Turbo</div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem">
+        <div class="trade-cat-btn active" id="cat-binary" onclick="setTradeCategory('binary')">
+          <span style="font-size:1rem">⬆⬇</span>
+          <div><div style="font-size:0.8rem;font-weight:600">Rise / Fall</div><div style="font-size:0.65rem;color:var(--muted)">Higher or Lower</div></div>
+        </div>
+        <div class="rp-label" style="margin-top:0.4rem">DIGITS</div>
+        <div class="trade-cat-btn" id="cat-matches" onclick="setTradeCategory('matches')">
+          <span style="font-size:1rem">🎯</span>
+          <div><div style="font-size:0.8rem;font-weight:600">Matches / Differs</div><div style="font-size:0.65rem;color:var(--muted)">Last digit prediction</div></div>
+        </div>
+        <div class="trade-cat-btn" id="cat-evenodd" onclick="setTradeCategory('evenodd')">
+          <span style="font-size:1rem">⚖️</span>
+          <div><div style="font-size:0.8rem;font-weight:600">Even / Odd</div><div style="font-size:0.65rem;color:var(--muted)">Last digit even or odd</div></div>
+        </div>
+        <div class="trade-cat-btn" id="cat-overunder" onclick="setTradeCategory('overunder')">
+          <span style="font-size:1rem">📊</span>
+          <div><div style="font-size:0.8rem;font-weight:600">Over / Under</div><div style="font-size:0.65rem;color:var(--muted)">Last digit over or under</div></div>
+        </div>
       </div>
     </div>
-    <div class="rp-section">
+
+    <!-- EXPIRY (shown for binary only) -->
+    <div class="rp-section" id="expiry-section">
       <div class="rp-label">EXPIRY TIME</div>
       <div class="expiry-grid">
         <div class="exp-btn active" onclick="setExpiry(30,this)"><div class="exp-time">30s</div><div class="exp-label">sec</div></div>
@@ -415,46 +442,55 @@
         <div class="exp-btn"        onclick="setExpiry(900,this)"><div class="exp-time">15m</div><div class="exp-label">min</div></div>
       </div>
     </div>
+
+    <!-- DIGIT SELECTOR (shown for matches/overunder) -->
+    <div class="rp-section" id="digit-select-section" style="display:none">
+      <div class="rp-label" id="digit-select-label">SELECT DIGIT</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.35rem" id="digit-select-grid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- STAKE -->
     <div class="rp-section">
       <div class="rp-label">STAKE</div>
       <div class="stake-row">
-        <button class="stake-btn" onclick="adjustStake(-100)">−</button>
-        <input type="number" class="stake-input" id="stake-input" value="500" min="100" oninput="updatePayout()">
-        <button class="stake-btn" onclick="adjustStake(100)">+</button>
-        <span class="stake-currency">USD</span>
+        <button class="stake-btn" onclick="adjustStake(-5)">−</button>
+        <input type="number" class="stake-input" id="stake-input" value="5" min="1" oninput="updatePayout()">
+        <button class="stake-btn" onclick="adjustStake(5)">+</button>
       </div>
       <div class="quick-stakes">
-        <div class="qs-btn" onclick="setStake(500)">500</div>
-        <div class="qs-btn" onclick="setStake(1000)">1K</div>
-        <div class="qs-btn" onclick="setStake(2000)">2K</div>
-        <div class="qs-btn" onclick="setStake(5000)">5K</div>
-        <div class="qs-btn" onclick="setStake(10000)">10K</div>
+        <div class="qs-btn" onclick="setStake(5)">$5</div>
+        <div class="qs-btn" onclick="setStake(10)">$10</div>
+        <div class="qs-btn" onclick="setStake(25)">$25</div>
+        <div class="qs-btn" onclick="setStake(50)">$50</div>
+        <div class="qs-btn" onclick="setStake(100)">$100</div>
       </div>
     </div>
+
+    <!-- PAYOUT -->
     <div class="rp-section">
       <div class="rp-label">PAYOUT ESTIMATE</div>
       <div class="payout-card">
-        <div class="payout-row"><span class="payout-key">Stake</span><span class="payout-val" id="po-stake">USD 500</span></div>
-        <div class="payout-row"><span class="payout-key">Profit (85%)</span><span class="payout-val green" id="po-profit">+USD 425</span></div>
-        <div class="payout-row"><span class="payout-key">Total payout</span><span class="payout-val green" id="po-total">USD 925</span></div>
+        <div class="payout-row"><span class="payout-key">Stake</span><span class="payout-val" id="po-stake">$5.00</span></div>
+        <div class="payout-row"><span class="payout-key">Total payout</span><span class="payout-val green" id="po-total">$10.00</span></div>
         <div class="payout-row" style="margin-top:0.35rem;padding-top:0.35rem;border-top:1px solid var(--border)">
-          <span class="payout-key">Payout rate</span><span class="payout-val">85%</span>
+          <span class="payout-key">Payout rate</span><span class="payout-val" id="po-rate">100%</span>
         </div>
       </div>
     </div>
-    <div class="rp-section">
-      <div class="trade-btns">
-        <button class="btn-call" onclick="placeTrade('call')"><span>▲ UP</span><span class="btn-sub">Call / Higher</span></button>
-        <button class="btn-put"  onclick="placeTrade('put')"><span>▼ DOWN</span><span class="btn-sub">Put / Lower</span></button>
-      </div>
+
+    <!-- TRADE BUTTONS (dynamic) -->
+    <div class="rp-section" id="trade-btn-section">
+      <!-- filled by JS based on trade category -->
     </div>
     <div class="rp-section">
       <div class="rp-label">YOUR STATS</div>
       <div class="stats-row">
         <div class="stat-box"><div class="stat-label">WIN RATE</div><div class="stat-val" id="stat-wr" style="color:var(--accent)">0%</div></div>
         <div class="stat-box"><div class="stat-label">TOTAL TRADES</div><div class="stat-val" id="stat-total">0</div></div>
-        <div class="stat-box"><div class="stat-label">TODAY P&L</div><div class="stat-val" id="stat-pnl" style="color:var(--accent)">+0</div></div>
-        <div class="stat-box"><div class="stat-label">BALANCE</div><div class="stat-val" id="stat-bal" style="color:var(--accent);font-size:0.72rem">USD 0</div></div>
+        <div class="stat-box"><div class="stat-label">TODAY P&L</div><div class="stat-val" id="stat-pnl" style="color:var(--accent)">+$0</div></div>
+        <div class="stat-box"><div class="stat-label">BALANCE</div><div class="stat-val" id="stat-bal" style="color:var(--accent);font-size:0.72rem">$0.00</div></div>
       </div>
     </div>
   </div>
@@ -472,55 +508,22 @@
   let user          = JSON.parse(localStorage.getItem('user') || '{}');
   let currentAsset  = 'EUR/USD';
   let currentExpiry = 30;
-  let currentStake  = 500;
+  let currentStake  = 5;
   let isDemoMode    = false;
   let demoBalance   = 10000;
   const DEMO_START  = 10000;
   let chartType     = 'line'; // line | mountain | candle
 
-  const ASSET_GROUPS = {
-    'Synthetic Indices (1s)': {
-      'Volatility 10 (1s) Index':  { base:9500.77,  type:'synthetic' },
-      'Volatility 15 (1s) Index':  { base:7823.44,  type:'synthetic' },
-      'Volatility 25 (1s) Index':  { base:6241.30,  type:'synthetic' },
-      'Volatility 30 (1s) Index':  { base:5890.12,  type:'synthetic' },
-      'Volatility 50 (1s) Index':  { base:4321.88,  type:'synthetic' },
-      'Volatility 75 (1s) Index':  { base:9351.77,  type:'synthetic' },
-      'Volatility 90 (1s) Index':  { base:3120.55,  type:'synthetic' },
-      'Volatility 100 (1s) Index': { base:2876.43,  type:'synthetic' },
-    },
-    'Synthetic Indices': {
-      'Volatility 10 Index':  { base:8921.33,  type:'synthetic' },
-      'Volatility 15 Index':  { base:7102.67,  type:'synthetic' },
-      'Volatility 25 Index':  { base:5678.90,  type:'synthetic' },
-      'Volatility 30 Index':  { base:4991.22,  type:'synthetic' },
-      'Volatility 50 Index':  { base:3845.11,  type:'synthetic' },
-      'Volatility 75 Index':  { base:1245.50,  type:'synthetic' },
-      'Volatility 90 Index':  { base:2341.78,  type:'synthetic' },
-      'Volatility 100 Index': { base:1987.64,  type:'synthetic' },
-    },
-    'Forex': {
-      'EUR/USD': { base:1.08450, type:'forex' },
-      'GBP/USD': { base:1.26780, type:'forex' },
-      'USD/JPY': { base:149.720, type:'forex' },
-      'AUD/USD': { base:0.65120, type:'forex' },
-      'USD/CHF': { base:0.90340, type:'forex' },
-    },
-    'Crypto': {
-      'BTC/USD': { base:67450,   type:'crypto' },
-      'ETH/USD': { base:3520,    type:'crypto' },
-      'LTC/USD': { base:82.40,   type:'crypto' },
-    },
-    'Commodities': {
-      'GOLD':    { base:2345.5,  type:'commodity' },
-      'SILVER':  { base:27.85,   type:'commodity' },
-      'OIL':     { base:82.30,   type:'commodity' },
-    },
+  const ASSETS = {
+    'EUR/USD':       { base:1.08450,  type:'forex',     emoji:'💱' },
+    'GBP/USD':       { base:1.26780,  type:'forex',     emoji:'💱' },
+    'BTC/USD':       { base:67450,    type:'crypto',    emoji:'₿'  },
+    'ETH/USD':       { base:3520,     type:'crypto',    emoji:'💎' },
+    'GOLD':          { base:2345.5,   type:'commodity', emoji:'🥇' },
+    'OIL':           { base:82.30,    type:'commodity', emoji:'🛢'  },
+    'Volatility 75': { base:9351.77,  type:'synthetic', emoji:'📊' },
+    'Volatility 10': { base:1245.50,  type:'synthetic', emoji:'📊' },
   };
-
-  // Flat map for quick lookup
-  const ASSETS = {};
-  Object.values(ASSET_GROUPS).forEach(group => Object.assign(ASSETS, group));
 
   /* ── CHART ── */
   let chartCtx, chartData = [], maxPoints = 120;
@@ -581,7 +584,6 @@
     }
 
     if (chartType === 'candle') {
-      // Candlestick — group data into OHLC bars
       const barW = Math.max(3, iW / (chartData.length/4) - 1);
       const grouped = [];
       for (let i=0; i<chartData.length-3; i+=4) {
@@ -592,15 +594,12 @@
         const bull = bar.c >= bar.o;
         const col  = bull ? '#10b981' : '#ef4444';
         chartCtx.strokeStyle = col; chartCtx.fillStyle = col;
-        // wick
         chartCtx.lineWidth = 1;
         chartCtx.beginPath(); chartCtx.moveTo(x, toY(bar.h)); chartCtx.lineTo(x, toY(bar.l)); chartCtx.stroke();
-        // body
         const top = toY(Math.max(bar.o, bar.c)), bot = toY(Math.min(bar.o, bar.c));
         chartCtx.fillRect(x - barW/2, top, barW, Math.max(1, bot-top));
       });
     } else {
-      // Line / Mountain
       if (chartType === 'mountain') {
         const grad = chartCtx.createLinearGradient(0,pad.top,0,H-pad.bottom);
         grad.addColorStop(0,'rgba(16,185,129,0.2)'); grad.addColorStop(1,'rgba(16,185,129,0)');
@@ -609,13 +608,11 @@
         chartCtx.lineTo(toX(chartData.length-1),H-pad.bottom); chartCtx.lineTo(toX(0),H-pad.bottom); chartCtx.closePath();
         chartCtx.fillStyle=grad; chartCtx.fill();
       }
-      // Line
       chartCtx.beginPath(); chartCtx.moveTo(toX(0),toY(chartData[0]));
       for (let i=1; i<chartData.length; i++) { const cpx=(toX(i-1)+toX(i))/2; chartCtx.bezierCurveTo(cpx,toY(chartData[i-1]),cpx,toY(chartData[i]),toX(i),toY(chartData[i])); }
       chartCtx.strokeStyle='#10b981'; chartCtx.lineWidth=2; chartCtx.stroke();
     }
 
-    // Current price dashed line + tag
     const curY = toY(chartData[chartData.length-1]);
     chartCtx.beginPath(); chartCtx.setLineDash([4,4]); chartCtx.strokeStyle='rgba(16,185,129,0.35)'; chartCtx.lineWidth=1;
     chartCtx.moveTo(pad.left,curY); chartCtx.lineTo(W-pad.right,curY); chartCtx.stroke(); chartCtx.setLineDash([]);
@@ -626,10 +623,7 @@
   }
 
   function fmtPrice(p) {
-    const a = currentAsset;
-    if (a.includes('Volatility') || a === 'GOLD' || a === 'SILVER' || a.includes('BTC') || a.includes('ETH') || a.includes('LTC')) return p.toFixed(2);
-    if (a === 'OIL') return p.toFixed(2);
-    if (a.includes('JPY')) return p.toFixed(3);
+    if (['BTC/USD','ETH/USD','GOLD','OIL','Volatility 75','Volatility 10'].includes(currentAsset)) return p.toFixed(2);
     return p.toFixed(5);
   }
 
@@ -679,58 +673,187 @@
     const lastDigit = Math.round(price*10)%10;
     digitCounts[lastDigit]++; digitTotal++;
     const el = document.getElementById('digit-row');
+
+    // Find the single highest and lowest frequency digit
+    // If tie, pick the first occurrence for high, last for low
+    const maxCount = Math.max(...digitCounts);
+    const minCount = Math.min(...digitCounts);
+
+    // Get index of highest count digit (skip current last digit for tie-breaking)
+    let highDigit = -1, lowDigit = -1;
+    if (digitTotal >= 10) {
+      // highest: first digit with max count
+      highDigit = digitCounts.indexOf(maxCount);
+      // lowest: first digit with min count (prefer one that isn't current)
+      for (let i = 0; i < 10; i++) {
+        if (digitCounts[i] === minCount) { lowDigit = i; break; }
+      }
+    }
+
     el.innerHTML = digitCounts.map((c,d) => {
-      const pct = digitTotal ? ((c/digitTotal)*100).toFixed(1) : '0.0';
-      const isLast = (Math.round(price*10)%10===d);
-      return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
-        <div style="width:38px;height:38px;border-radius:50%;background:${isLast?'var(--bg3)':'rgba(255,255,255,0.04)'};border:2px solid ${isLast?'var(--accent)':'rgba(255,255,255,0.1)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:${isLast?'var(--accent)':'var(--text2)'}">
-          ${d}
+      const pct        = digitTotal ? ((c/digitTotal)*100).toFixed(1) : '0.0';
+      const isCurrent  = (d === lastDigit);
+      const isHigh     = (d === highDigit && d !== lastDigit);
+      const isLow      = (d === lowDigit  && d !== lastDigit && d !== highDigit);
+
+      const borderColor = isCurrent ? '#f59e0b'
+                        : isHigh    ? '#10b981'
+                        : isLow     ? '#ef4444'
+                        : 'rgba(255,255,255,0.12)';
+      const bgColor     = isCurrent ? 'rgba(245,158,11,0.15)'
+                        : isHigh    ? 'rgba(16,185,129,0.15)'
+                        : isLow     ? 'rgba(239,68,68,0.15)'
+                        : 'rgba(255,255,255,0.03)';
+      const textColor   = isCurrent ? '#f59e0b'
+                        : isHigh    ? '#10b981'
+                        : isLow     ? '#ef4444'
+                        : '#d1d5db';
+
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:44px;position:relative">
+        <div style="font-size:0.6rem;color:#f59e0b;text-align:center;height:10px;line-height:10px">
+          ${isCurrent ? '▼' : ''}
         </div>
-        <div style="font-size:0.6rem;color:var(--muted)">${pct}%</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:${bgColor};border:2px solid ${borderColor};display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background 0.25s,border-color 0.25s,color 0.25s">
+          <div style="font-weight:800;font-size:0.9rem;color:${textColor};line-height:1">${d}</div>
+          <div style="font-size:0.58rem;color:${textColor};font-weight:600;line-height:1;margin-top:1px">${pct}%</div>
+        </div>
       </div>`;
     }).join('');
   }
 
   /* ── ASSET ── */
+  /* ── ASSET MODAL ── */
+  const ASSET_CATEGORIES = {
+    forex:     { label:'Forex',       assets:['EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CHF','NZD/USD','EUR/GBP','EUR/JPY'] },
+    crypto:    { label:'Crypto',      assets:['BTC/USD','ETH/USD','LTC/USD','XRP/USD','SOL/USD','BNB/USD'] },
+    commodity: { label:'Commodities', assets:['GOLD','SILVER','OIL','NATURAL GAS','COPPER','PLATINUM'] },
+    synthetic: { label:'Synthetic Indices', assets:[
+      'Volatility 10 (1s) Index','Volatility 10 Index',
+      'Volatility 15 (1s) Index',
+      'Volatility 25 (1s) Index','Volatility 25 Index',
+      'Volatility 30 (1s) Index',
+      'Volatility 50 (1s) Index','Volatility 50 Index',
+      'Volatility 75 (1s) Index','Volatility 75 Index',
+      'Volatility 90 (1s) Index',
+      'Volatility 100 (1s) Index','Volatility 100 Index',
+      'Crash 300 Index','Crash 500 Index','Crash 1000 Index',
+      'Boom 300 Index','Boom 500 Index','Boom 1000 Index',
+      'Step Index','Range Break 100 Index','Range Break 200 Index'
+    ]}
+  };
+
+  // Extend ASSETS map with new entries
+  Object.values(ASSET_CATEGORIES).forEach(cat => {
+    cat.assets.forEach(name => {
+      if (!ASSETS[name]) {
+        const type = Object.keys(ASSET_CATEGORIES).find(k => ASSET_CATEGORIES[k].assets.includes(name));
+        const baseMap = {
+          'USD/JPY':149.87,'AUD/USD':0.6520,'USD/CHF':0.9011,'NZD/USD':0.5980,
+          'EUR/GBP':0.8541,'EUR/JPY':161.25,'LTC/USD':82.45,'XRP/USD':0.5231,
+          'SOL/USD':148.20,'BNB/USD':312.50,'SILVER':27.45,'NATURAL GAS':2.31,
+          'COPPER':4.12,'PLATINUM':985.0,
+          'Volatility 10 (1s) Index':1245.50,'Volatility 10 Index':1180.20,
+          'Volatility 15 (1s) Index':1520.30,
+          'Volatility 25 (1s) Index':2340.10,'Volatility 25 Index':2180.50,
+          'Volatility 30 (1s) Index':3100.75,
+          'Volatility 50 (1s) Index':5420.30,'Volatility 50 Index':5120.80,
+          'Volatility 75 (1s) Index':9351.77,'Volatility 75 Index':8920.40,
+          'Volatility 90 (1s) Index':11240.60,
+          'Volatility 100 (1s) Index':13580.20,'Volatility 100 Index':12840.90,
+          'Crash 300 Index':8420.50,'Crash 500 Index':6120.30,'Crash 1000 Index':4850.70,
+          'Boom 300 Index':8980.20,'Boom 500 Index':6540.10,'Boom 1000 Index':5210.40,
+          'Step Index':100.00,'Range Break 100 Index':1250.00,'Range Break 200 Index':2480.00
+        };
+        ASSETS[name] = { base: baseMap[name]||1000, type, emoji: type==='forex'?'💱':type==='crypto'?'₿':type==='commodity'?'🥇':'📊' };
+      }
+    });
+  });
+
+  let currentAssetCat = 'all';
+  let assetSearchQuery = '';
+
+  function openAssetModal() {
+    document.getElementById('asset-modal').style.display='block';
+    document.getElementById('asset-search').value='';
+    assetSearchQuery='';
+    renderAssetList();
+    setTimeout(()=>document.getElementById('asset-search').focus(),100);
+  }
+
+  function closeAssetModal() {
+    document.getElementById('asset-modal').style.display='none';
+  }
+
+  function setAssetCat(cat, el) {
+    currentAssetCat=cat;
+    document.querySelectorAll('.cat-icon').forEach(e=>e.classList.remove('active'));
+    el.classList.add('active');
+    renderAssetList();
+  }
+
+  function filterAssets(q) {
+    assetSearchQuery=q.toLowerCase();
+    renderAssetList();
+  }
+
+  function renderAssetList() {
+    const container = document.getElementById('asset-modal-list');
+    let html = '';
+    const cats = currentAssetCat==='all' ? Object.keys(ASSET_CATEGORIES) : [currentAssetCat];
+
+    cats.forEach(cat => {
+      const catData = ASSET_CATEGORIES[cat];
+      const filtered = catData.assets.filter(name =>
+        !assetSearchQuery || name.toLowerCase().includes(assetSearchQuery)
+      );
+      if (!filtered.length) return;
+
+      if (currentAssetCat==='all') {
+        html += `<div class="cat-header">${catData.label.toUpperCase()}</div>`;
+      }
+
+      filtered.forEach(name => {
+        const a = ASSETS[name] || {};
+        const price = (a.base||0);
+        const isSelected = name===currentAsset;
+        const priceStr = ['BTC/USD','ETH/USD','LTC/USD','XRP/USD','SOL/USD','BNB/USD'].includes(name)
+          ? price.toFixed(2)
+          : price > 100 ? price.toFixed(2) : price.toFixed(5);
+        html += `<div class="asset-row${isSelected?' selected':''}" onclick="changeAsset('${name.replace(/'/g,"\'")}')">
+          <div class="asset-row-icon">${a.emoji||'📈'}</div>
+          <div>
+            <div class="asset-row-name">${name}</div>
+            <div class="asset-row-sub">${catData.label}</div>
+          </div>
+          <div class="asset-row-price">
+            <div class="asset-row-val">${priceStr}</div>
+            <div class="asset-row-chg" style="color:var(--accent)">● LIVE</div>
+          </div>
+        </div>`;
+      });
+    });
+
+    if (!html) html = '<div style="text-align:center;color:var(--muted);padding:2rem;font-size:0.8rem">No markets found</div>';
+    container.innerHTML = html;
+  }
+
   function changeAsset(asset) {
     currentAsset=asset; chartPrice=ASSETS[asset]?.base||1.0;
     chartData=[]; tickTimes=[]; digitCounts=Array(10).fill(0); digitTotal=0;
     let p=chartPrice;
     for (let i=0;i<maxPoints;i++){p=p*(1+(Math.random()-0.499)*0.0008);chartData.push(p);}
     document.getElementById('tb-asset').textContent=asset;
-    document.getElementById('trade-asset').value=asset;
-    document.getElementById('asset-menu').style.display='none';
+    // Update right panel selector if asset exists there
+    const sel=document.getElementById('trade-asset');
+    if([...sel.options].some(o=>o.value===asset)) sel.value=asset;
+    closeAssetModal();
     renderChart();
   }
 
-  function toggleAssetMenu() {
-    const menu = document.getElementById('asset-menu');
-    const list = document.getElementById('asset-list');
-    if (menu.style.display === 'none' || !menu.style.display) {
-      let html = '';
-      Object.entries(ASSET_GROUPS).forEach(([groupName, assets]) => {
-        html += `<div style="padding:0.4rem 0.75rem 0.2rem;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;font-weight:600;background:rgba(0,0,0,0.2)">${groupName.toUpperCase()}</div>`;
-        Object.entries(assets).forEach(([name, info]) => {
-          const isActive = name === currentAsset;
-          html += `<div onclick="changeAsset('${name}')" style="padding:0.55rem 0.75rem;cursor:pointer;font-size:0.82rem;display:flex;align-items:center;gap:0.6rem;transition:background 0.15s;background:${isActive?'rgba(16,185,129,0.08)':'none'}" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='${isActive?'rgba(16,185,129,0.08)':'none'}'">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1" y="8" width="3" height="5" fill="${isActive?'#10b981':'#6b7280'}" rx="0.5"/><rect x="5.5" y="5" width="3" height="8" fill="${isActive?'#10b981':'#6b7280'}" rx="0.5"/><rect x="10" y="2" width="3" height="11" fill="${isActive?'#10b981':'#6b7280'}" rx="0.5"/></svg>
-            <div style="flex:1">
-              <div style="font-weight:${isActive?'700':'500'};color:${isActive?'var(--accent)':'var(--text2)'}">${name}</div>
-              <div style="font-size:0.62rem;color:var(--muted)">${info.type}</div>
-            </div>
-            ${isActive ? '<div style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>' : ''}
-          </div>`;
-        });
-      });
-      list.innerHTML = html;
-      menu.style.display = 'block';
-    } else {
-      menu.style.display = 'none';
-    }
-  }
+  function toggleAssetMenu() { openAssetModal(); }
 
   document.addEventListener('click', e => {
-    if (!e.target.closest('.asset-pill')&&!e.target.closest('#asset-menu')) document.getElementById('asset-menu').style.display='none';
+    if (!e.target.closest('.asset-pill')&&!e.target.closest('#asset-modal>div')) document.getElementById('asset-modal').style.display='none';
     if (!e.target.closest('.dropdown')&&!e.target.closest('.icon-btn')&&!e.target.closest('#avatar-btn')) document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
   });
 
@@ -738,13 +861,16 @@
   function setTF(btn) { document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
   function setTradeType(btn) { document.querySelectorAll('.trade-type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
   function setExpiry(sec,el) { currentExpiry=sec; document.querySelectorAll('.exp-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
-  function adjustStake(d) { currentStake=Math.max(100,(parseInt(document.getElementById('stake-input').value)||0)+d); document.getElementById('stake-input').value=currentStake; updatePayout(); }
+  function adjustStake(d) { currentStake=Math.max(1,(parseFloat(document.getElementById('stake-input').value)||0)+d); document.getElementById('stake-input').value=currentStake; updatePayout(); }
   function setStake(v) { currentStake=v; document.getElementById('stake-input').value=v; updatePayout(); }
   function updatePayout() {
-    currentStake=parseInt(document.getElementById('stake-input').value)||0;
-    document.getElementById('po-stake').textContent  = 'USD '+currentStake.toLocaleString();
-    document.getElementById('po-profit').textContent = '+USD '+Math.floor(currentStake*0.85).toLocaleString();
-    document.getElementById('po-total').textContent  = 'USD '+Math.floor(currentStake*1.85).toLocaleString();
+    currentStake = parseFloat(document.getElementById('stake-input').value)||0;
+    const rates = { binary:1.0, matches:1.0, evenodd:1.0, overunder:1.0 };
+    const rate  = rates[tradeCategory] || 0.85;
+    document.getElementById('po-stake').textContent  = '$'+currentStake.toFixed(2);
+    document.getElementById('po-total').textContent  = '$'+(currentStake*(1+rate)).toFixed(2);
+    const rateEl = document.getElementById('po-rate');
+    if (rateEl) rateEl.textContent = Math.round(rate*100)+'%';
   }
 
   /* ── DEMO / REAL ── */
@@ -758,7 +884,7 @@
       chip.style.cssText='background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:0.3rem 0.85rem;font-family:JetBrains Mono,monospace;font-size:0.78rem;color:#f59e0b;transition:all 0.3s';
       depBtn.style.display='none'; banner.classList.add('visible'); resetBtn.style.display='';
       updateBalance(demoBalance);
-      showToast('Demo Mode 🎮','Trading with USD '+DEMO_START.toLocaleString()+' virtual funds','demo');
+      showToast('Demo Mode 🎮','Trading with $'+DEMO_START.toLocaleString()+' virtual funds','demo');
     } else {
       btnReal.className='mode-btn real-active'; btnDemo.className='mode-btn inactive';
       chip.style.cssText='background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:20px;padding:0.3rem 0.85rem;font-family:JetBrains Mono,monospace;font-size:0.78rem;color:#10b981;transition:all 0.3s';
@@ -772,31 +898,47 @@
   function resetDemo() {
     demoBalance=DEMO_START; updateBalance(demoBalance);
     document.getElementById('demo-bal-banner').textContent=demoBalance.toLocaleString();
-    showToast('Demo Reset 🔄','Balance reset to USD '+DEMO_START.toLocaleString(),'demo');
+    showToast('Demo Reset 🔄','Balance reset to $'+DEMO_START.toLocaleString(),'demo');
     togglePanel('profile-panel');
   }
 
   function updateBalance(bal) {
     const fmt=Number(bal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     document.getElementById('header-balance').textContent=fmt;
-    document.getElementById('stat-bal').textContent='USD '+fmt;
+    document.getElementById('stat-bal').textContent='$'+fmt;
     if (isDemoMode){demoBalance=bal;document.getElementById('demo-bal-banner').textContent=Number(bal).toLocaleString();}
     else{user.balance=bal;}
   }
 
   /* ── TRADE ── */
+  const DIGIT_DIRS = ['even','odd','matches','differs','over','under'];
+
   async function placeTrade(direction) {
-    if (currentStake<100) return showToast('Error','Minimum stake is USD 100','error');
+    if (currentStake<1) return showToast('Error','Minimum stake is $1.00','error');
     const bal=isDemoMode?demoBalance:(user.balance||0);
     if (currentStake>bal) return showToast('Error','Insufficient balance','error');
     try {
-      const res=await api.placeTrade({asset:currentAsset,direction,amount:currentStake,duration:currentExpiry,isDemo:isDemoMode});
+      const isDigit = DIGIT_DIRS.includes(direction);
+      const payload = {
+        asset: currentAsset,
+        direction,
+        amount: currentStake,
+        duration: isDigit ? 2 : currentExpiry,
+        isDemo: isDemoMode
+      };
+      // Send targetDigit for matches/differs/over/under
+      if (['matches','differs','over','under'].includes(direction)) {
+        payload.targetDigit = selectedDigit;
+      }
+      const res = await api.placeTrade(payload);
       if (isDemoMode){
-        demoBalance-=currentStake; updateBalance(demoBalance);
-        showToast(direction==='call'?'▲ Demo Trade':'▼ Demo Trade',`${direction.toUpperCase()} on ${currentAsset} · USD ${currentStake.toLocaleString()} (Demo)`,'demo');
+        demoBalance -= currentStake; updateBalance(demoBalance);
+        const label = direction.toUpperCase();
+        showToast(`${label} Trade`,`${label} on ${currentAsset} · $${currentStake.toFixed(2)} (Demo)`,'demo');
       } else {
         updateBalance(res.balance);
-        showToast(direction==='call'?'▲ Trade Placed':'▼ Trade Placed',`${direction.toUpperCase()} on ${currentAsset} · USD ${currentStake.toLocaleString()}`);
+        const label = direction.toUpperCase();
+        showToast(`${label} Trade Placed`,`${label} on ${currentAsset} · $${currentStake.toFixed(2)}`);
       }
       await refreshActiveTrades();
     } catch(err){showToast('Error',err.message||'Failed to place trade','error');}
@@ -829,8 +971,8 @@
       const timer=rem<60?`${sec}s`:`${min}:${sec.toString().padStart(2,'0')}`;
       return `<div class="trade-item-small">
         <div class="ti-header"><span class="ti-asset">${t.asset}${t.isDemo?'<span class="demo-tag">DEMO</span>':''}</span><span class="ti-dir ${t.direction}">${t.direction==='call'?'▲ UP':'▼ DOWN'}</span></div>
-        <div class="ti-row"><span>USD ${Number(t.amount).toLocaleString()}</span><span class="ti-timer">${timer}</span></div>
-        <div class="ti-row" style="margin-top:0.18rem"><span>@ ${Number(t.entryPrice).toFixed(5)}</span><span style="color:var(--accent);font-size:0.68rem">+USD ${(t.amount*0.85).toFixed(0)}</span></div>
+        <div class="ti-row"><span>$${Number(t.amount).toFixed(2)}</span><span class="ti-timer">${timer}</span></div>
+        <div class="ti-row" style="margin-top:0.18rem"><span>@ ${Number(t.entryPrice).toFixed(5)}</span><span style="color:var(--accent);font-size:0.68rem">+$${(t.amount*0.85).toFixed(2)}</span></div>
       </div>`;
     }).join('');
   }
@@ -847,8 +989,8 @@
             <span style="font-size:0.7rem;color:${t.status==='won'?'var(--accent)':'var(--red)'};font-weight:700">${t.status.toUpperCase()}</span>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted)">
-            <span>${t.direction.toUpperCase()} · USD ${Number(t.amount).toLocaleString()}</span>
-            <span style="color:${t.profit>=0?'var(--accent)':'var(--red)'}">${t.profit>=0?'+':''}USD ${Math.abs(t.profit).toLocaleString()}</span>
+            <span>${t.direction.toUpperCase()} · $${Number(t.amount).toFixed(2)}</span>
+            <span style="color:${t.profit>=0?'var(--accent)':'var(--red)'}">${t.profit>=0?'+':''}$${Math.abs(t.profit).toFixed(2)}</span>
           </div>
         </div>`).join('');
     } catch(e){}
@@ -863,7 +1005,7 @@
         <div style="padding:0.6rem 0.85rem;border-bottom:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem">
             <span style="font-size:0.76rem;font-weight:600;text-transform:capitalize">${t.type}</span>
-            <span style="font-size:0.73rem;font-weight:700;color:${t.type==='deposit'?'var(--accent)':'var(--red)'}">USD ${Math.abs(t.amount).toLocaleString()}</span>
+            <span style="font-size:0.73rem;font-weight:700;color:${t.type==='deposit'?'var(--accent)':'var(--red)'}">$${Math.abs(t.amount).toFixed(2)}</span>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--muted)">
             <span>${t.method}</span><span style="color:${t.status==='completed'?'var(--accent)':'var(--amber)'}">${t.status}</span>
@@ -882,7 +1024,7 @@
       document.getElementById('stat-wr').textContent=wr+'%';
       document.getElementById('stat-total').textContent=s.totalTrades||0;
       const pnl=data.todayPnL||0;
-      document.getElementById('stat-pnl').textContent=(pnl>=0?'+':'')+Math.abs(pnl).toLocaleString();
+      document.getElementById('stat-pnl').textContent=(pnl>=0?'+$':'-$')+Math.abs(pnl).toFixed(2);
       document.getElementById('stat-pnl').style.color=pnl>=0?'var(--accent)':'var(--red)';
     } catch(e){}
   }
@@ -914,15 +1056,113 @@
     setTimeout(()=>t.classList.remove('show'),3500);
   }
 
+  /* ── TRADE CATEGORIES ── */
+  let tradeCategory = 'binary'; // binary | matches | evenodd | overunder
+  let selectedDigit = 5;
+
+  function setTradeCategory(cat) {
+    tradeCategory = cat;
+    // Update active button
+    document.querySelectorAll('.trade-cat-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('cat-' + cat).classList.add('active');
+    // Show/hide expiry
+    document.getElementById('expiry-section').style.display = cat === 'binary' ? 'block' : 'none';
+    // Show/hide digit selector
+    const digitSec = document.getElementById('digit-select-section');
+    if (cat === 'matches') {
+      digitSec.style.display = 'block';
+      document.getElementById('digit-select-label').textContent = 'SELECT DIGIT (0–9)';
+      renderDigitSelector(0, 9);
+    } else if (cat === 'overunder') {
+      digitSec.style.display = 'block';
+      document.getElementById('digit-select-label').textContent = 'BARRIER DIGIT';
+      renderDigitSelector(0, 9);
+    } else {
+      digitSec.style.display = 'none';
+    }
+    // Update payout rate
+    const rates = { binary:100, matches:100, evenodd:100, overunder:100 };
+    const rate = rates[cat];
+    document.getElementById('po-rate').textContent = rate + '%';
+    updatePayout();
+    renderTradeButtons();
+  }
+
+  function renderDigitSelector(min, max) {
+    const grid = document.getElementById('digit-select-grid');
+    let html = '';
+    for (let i = min; i <= max; i++) {
+      html += `<div class="digit-sel-btn${i===selectedDigit?' active':''}" onclick="selectDigit(${i})">${i}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function selectDigit(d) {
+    selectedDigit = d;
+    document.querySelectorAll('.digit-sel-btn').forEach((b,i) => b.classList.toggle('active', i===d));
+    renderTradeButtons();
+  }
+
+  function renderTradeButtons() {
+    const sec = document.getElementById('trade-btn-section');
+    if (tradeCategory === 'binary') {
+      sec.innerHTML = `<div class="trade-btns">
+        <button class="btn-call" onclick="placeTrade('call')"><span>▲ UP</span><span class="btn-sub">Rise / Higher</span></button>
+        <button class="btn-put"  onclick="placeTrade('put')"><span>▼ DOWN</span><span class="btn-sub">Fall / Lower</span></button>
+      </div>`;
+    } else if (tradeCategory === 'evenodd') {
+      sec.innerHTML = `<div class="trade-btns">
+        <button class="btn-call" onclick="placeTrade('even')" style="background:#3b82f6">
+          <span>⚖ EVEN</span><span class="btn-sub">0, 2, 4, 6, 8</span>
+        </button>
+        <button class="btn-put" onclick="placeTrade('odd')" style="background:#8b5cf6">
+          <span>⚡ ODD</span><span class="btn-sub">1, 3, 5, 7, 9</span>
+        </button>
+      </div>`;
+    } else if (tradeCategory === 'matches') {
+      sec.innerHTML = `<div class="trade-btns">
+        <button class="btn-call" onclick="placeTrade('matches')" style="background:#10b981">
+          <span>🎯 MATCHES</span><span class="btn-sub">Last digit = ${selectedDigit}</span>
+        </button>
+        <button class="btn-put" onclick="placeTrade('differs')" style="background:#ef4444">
+          <span>✗ DIFFERS</span><span class="btn-sub">Last digit ≠ ${selectedDigit}</span>
+        </button>
+      </div>`;
+    } else if (tradeCategory === 'overunder') {
+      sec.innerHTML = `<div class="trade-btns">
+        <button class="btn-call" onclick="placeTrade('over')" style="background:#10b981">
+          <span>▲ OVER</span><span class="btn-sub">Last digit > ${selectedDigit}</span>
+        </button>
+        <button class="btn-put" onclick="placeTrade('under')" style="background:#ef4444">
+          <span>▼ UNDER</span><span class="btn-sub">Last digit < ${selectedDigit}</span>
+        </button>
+      </div>`;
+    }
+  }
+
   /* ── LOGOUT ── */
   function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='/pages/login.html';}
 
   /* ── INIT ── */
   async function init() {
-    updateBalance(user.balance||0);
+    // Always show 0 immediately — never trust localStorage balance
+    updateBalance(0);
+    renderTradeButtons();
     updatePayout();
     updateDigits(chartPrice);
     initChart();
+
+    // Fetch real balance from server
+    try {
+      const profile = await api.get('/auth/me');
+      user = { ...user, ...profile };
+      localStorage.setItem('user', JSON.stringify(user));
+      if (!isDemoMode) updateBalance(user.balance ?? 0);
+    } catch(e) {
+      // If fetch fails, keep showing 0 for real account
+      if (!isDemoMode) updateBalance(0);
+    }
+
     await loadStats();
     await refreshActiveTrades();
     const name=((user.firstName||'')+' '+(user.lastName||'')).trim()||'User';
@@ -932,54 +1172,6 @@
     document.getElementById('avatar-btn').textContent=(user.firstName?.[0]||'U').toUpperCase();
     setInterval(refreshActiveTrades,3000);
     setInterval(loadStats,30000);
-
-    // ── SOCKET.IO real-time updates ──
-    try {
-      const script = document.createElement('script');
-      script.src = '/socket.io/socket.io.js';
-      script.onload = () => {
-        const socket = io();
-        // Join user's room for private events
-        if (user.id || user._id) socket.emit('join', user.id || user._id);
-
-        // Real balance update after trade resolves
-        socket.on('tradeResolved', (data) => {
-          if (!isDemoMode) {
-            updateBalance(data.balance);
-            showToast(
-              data.result === 'won' ? '🎉 Trade Won!' : '❌ Trade Lost',
-              `${data.result === 'won' ? '+' : ''}USD ${Math.abs(data.profit).toLocaleString()}`,
-              data.result === 'won' ? 'success' : 'error'
-            );
-            loadStats();
-            refreshActiveTrades();
-          }
-        });
-
-        // Demo trade resolved
-        socket.on('demoTradeResolved', (data) => {
-          if (isDemoMode) {
-            if (data.won) demoBalance += data.profit + (currentStake || 0);
-            updateBalance(demoBalance);
-            showToast(
-              data.result === 'won' ? '🎉 Demo Won!' : '❌ Demo Lost',
-              `${data.result === 'won' ? '+' : ''}USD ${Math.abs(data.profit).toLocaleString()} (Demo)`,
-              data.result === 'won' ? 'success' : 'demo'
-            );
-            refreshActiveTrades();
-          }
-        });
-
-        // Deposit confirmed
-        socket.on('balanceUpdate', (data) => {
-          if (!isDemoMode) {
-            updateBalance(data.balance);
-            showToast('💰 Deposit Confirmed', `USD ${data.transaction.amount.toLocaleString()} added to your account`);
-          }
-        });
-      };
-      document.head.appendChild(script);
-    } catch(e) { /* socket.io optional */ }
   }
 
   /* ── MODALS ── */
@@ -1101,8 +1293,8 @@
       <input class="modal-input" id="ep-email" type="email" readonly>
     </div>
     <div class="modal-field">
-      <label class="modal-label">PHONE (M-PESA)</label>
-      <input class="modal-input" id="ep-phone" type="tel" placeholder="+254 7XX XXX XXX">
+      <label class="modal-label">PHONE</label>
+      <input class="modal-input" id="ep-phone" type="tel" placeholder="+1 (555) 000-0000">
     </div>
     <button class="modal-btn" id="ep-save" onclick="saveProfile()">Save Changes</button>
   </div>

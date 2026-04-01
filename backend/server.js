@@ -44,7 +44,7 @@ app.get('/pages/:page', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/pages/dashboard.html'));
+  res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
 });
 
 // ── 404 FALLBACK ──────────────────────────────────────────
@@ -52,7 +52,7 @@ app.use((req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ message: 'Route not found' });
   }
-  res.sendFile(path.join(__dirname, '../frontend/pages/dashboard.html'));
+  res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
 });
 
 // ── START ─────────────────────────────────────────────────

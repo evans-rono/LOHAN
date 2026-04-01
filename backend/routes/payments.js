@@ -39,12 +39,16 @@ router.post('/deposit', auth, [
         return res.status(400).json({ message: 'Phone number is required for M-Pesa' });
 
       try {
+        console.log(`[M-Pesa] Initiating STK push: $${amount} USD = KES ${Math.ceil(amount * mpesa.USD_TO_KES)} for ${phoneNumber}`);
+
         const stkResponse = await mpesa.initiateSTKPush({
           phoneNumber,
-          amount,
+          amount,          // USD amount — conversion to KES happens inside mpesa.js
           reference: ref,
           description: 'Lohan Deposit'
         });
+
+        console.log('[M-Pesa] STK push success:', stkResponse);
 
         // Save checkout request ID for callback matching
         transaction.metadata = {
@@ -55,17 +59,26 @@ router.post('/deposit', auth, [
 
         return res.json({
           success: true,
-          message: 'M-Pesa prompt sent! Enter your PIN on your phone.',
+          message: `M-Pesa prompt sent! You will be charged KES ${Math.ceil(amount * mpesa.USD_TO_KES)}. Enter your PIN to complete.`,
           transaction: { id: transaction._id, reference: ref, amount, status: 'pending' }
         });
+
       } catch (mpesaError) {
-        // If M-Pesa credentials not set up, fall through to simulation
-        console.warn('M-Pesa API error:', mpesaError.message);
-        console.warn('Falling back to simulation mode...');
+        // Log the FULL error so we can debug
+        console.error('[M-Pesa] STK push FAILED:', mpesaError.message);
+        console.error('[M-Pesa] Full error:', mpesaError.response?.data || mpesaError);
+
+        // Mark transaction as failed and return error to user — do NOT silently simulate
+        transaction.status = 'failed';
+        await transaction.save();
+
+        return res.status(500).json({
+          message: `M-Pesa error: ${mpesaError.response?.data?.errorMessage || mpesaError.message}`
+        });
       }
     }
 
-    // ── SIMULATION (for card/bank/crypto or when M-Pesa creds missing) ──
+    // ── SIMULATION for card / bank / crypto only ──
     setTimeout(async () => {
       try {
         transaction.status = 'completed';
@@ -87,19 +100,18 @@ router.post('/deposit', auth, [
       } catch (e) {
         console.error('Deposit completion error:', e);
       }
-    }, method === 'mpesa' ? 8000 : 3000);
+    }, 3000);
 
     res.json({
       success: true,
-      message: method === 'mpesa'
-        ? 'M-Pesa prompt sent! Enter your PIN on your phone.'
-        : method === 'card'
-          ? 'Card payment processing...'
-          : method === 'bank'
-            ? 'Bank transfer submitted. Will be credited in 1-2 days.'
-            : 'Crypto deposit submitted. Awaiting confirmation.',
+      message: method === 'card'
+        ? 'Card payment processing...'
+        : method === 'bank'
+          ? 'Bank transfer submitted. Will be credited in 1-2 days.'
+          : 'Crypto deposit submitted. Awaiting confirmation.',
       transaction: { id: transaction._id, reference: ref, amount, status: 'pending' }
     });
+
   } catch (error) {
     console.error('Deposit error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -120,30 +132,37 @@ router.post('/mpesa-callback', async (req, res) => {
     if (!transaction) return res.json({ ResultCode: 0 });
 
     if (ResultCode === 0) {
-      // Payment successful
+      // Payment successful — credit USD amount (not KES) to user balance
       const mpesaReceiptItem = CallbackMetadata?.Item?.find(i => i.Name === 'MpesaReceiptNumber');
       const mpesaReceipt = mpesaReceiptItem?.Value || '';
 
-      transaction.status      = 'completed';
+      transaction.status       = 'completed';
       transaction.mpesaReceipt = mpesaReceipt;
       transaction.processedAt  = new Date();
       await transaction.save();
 
-      // Credit user balance
+      // Credit user balance in USD (transaction.amount is already in USD)
       const user = await User.findById(transaction.user);
       user.balance += transaction.amount;
       await user.save();
+
+      console.log(`[M-Pesa] Payment confirmed. Credited $${transaction.amount} USD to user ${user.email}. New balance: $${user.balance}`);
 
       // Notify via socket
       const io = global.io;
       if (io) {
         io.to(user._id.toString()).emit('balanceUpdate', {
           balance: user.balance,
-          transaction: { id: transaction._id, reference: transaction.reference, amount: transaction.amount, status: 'completed' }
+          transaction: {
+            id: transaction._id,
+            reference: transaction.reference,
+            amount: transaction.amount,
+            status: 'completed'
+          }
         });
       }
     } else {
-      // Payment failed/cancelled
+      console.log(`[M-Pesa] Payment failed/cancelled. ResultCode: ${ResultCode}`);
       transaction.status = 'failed';
       await transaction.save();
     }
@@ -188,7 +207,12 @@ router.post('/withdraw', auth, [
     res.json({
       success: true,
       message: 'Withdrawal request submitted. Processing within 24 hours.',
-      transaction: { id: transaction._id, reference: transaction.reference, amount: -amount, status: 'pending' },
+      transaction: {
+        id: transaction._id,
+        reference: transaction.reference,
+        amount: -amount,
+        status: 'pending'
+      },
       balance: user.balance
     });
   } catch (error) {

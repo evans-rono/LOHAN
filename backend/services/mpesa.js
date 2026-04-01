@@ -5,6 +5,9 @@ const MPESA_BASE_URL = process.env.MPESA_ENV === 'production'
   ? 'https://api.safaricom.co.ke'
   : 'https://sandbox.safaricom.co.ke';
 
+// USD to KES exchange rate — update this periodically or fetch live
+const USD_TO_KES = 129;
+
 // Get OAuth access token from Safaricom
 async function getAccessToken() {
   const consumerKey    = process.env.MPESA_CONSUMER_KEY;
@@ -26,8 +29,8 @@ async function getAccessToken() {
 async function initiateSTKPush({ phoneNumber, amount, reference, description }) {
   const accessToken = await getAccessToken();
 
-  const shortcode  = process.env.MPESA_SHORTCODE;
-  const passkey    = process.env.MPESA_PASSKEY;
+  const shortcode   = process.env.MPESA_SHORTCODE;
+  const passkey     = process.env.MPESA_PASSKEY;
   const callbackUrl = process.env.MPESA_CALLBACK_URL || 'https://yourdomain.com/api/payments/mpesa-callback';
 
   if (!shortcode || !passkey) {
@@ -42,6 +45,9 @@ async function initiateSTKPush({ phoneNumber, amount, reference, description }) 
   if (phone.startsWith('0')) phone = '254' + phone.slice(1);
   if (!phone.startsWith('254')) phone = '254' + phone;
 
+  // Convert USD amount to KES for M-Pesa (M-Pesa only accepts KES whole numbers)
+  const amountInKES = Math.ceil(amount * USD_TO_KES);
+
   const response = await axios.post(
     `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
     {
@@ -49,13 +55,13 @@ async function initiateSTKPush({ phoneNumber, amount, reference, description }) 
       Password: password,
       Timestamp: timestamp,
       TransactionType: 'CustomerPayBillOnline',
-      Amount: Math.ceil(amount), // M-Pesa only accepts whole numbers
+      Amount: amountInKES,
       PartyA: phone,
       PartyB: shortcode,
       PhoneNumber: phone,
       CallBackURL: callbackUrl,
       AccountReference: reference || 'Lohan',
-      TransactionDesc: description || 'Lohan Deposit'
+      TransactionDesc: description || `Lohan Deposit $${amount}`
     },
     { headers: { Authorization: `Bearer ${accessToken}` } }
   );
@@ -84,4 +90,4 @@ async function querySTKStatus(checkoutRequestId) {
   return response.data;
 }
 
-module.exports = { initiateSTKPush, querySTKStatus };
+module.exports = { initiateSTKPush, querySTKStatus, USD_TO_KES };

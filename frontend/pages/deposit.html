@@ -131,12 +131,7 @@
       <div id="deposit" class="tab-content active">
         <div class="form-label" style="margin-bottom:0.75rem">SELECT PAYMENT METHOD</div>
         <div class="method-grid">
-          <div class="method-card selected" onclick="selectMethod(this,'mpesa')">
-            <div class="method-icon">📱</div>
-            <div class="method-name">M-Pesa</div>
-            <div class="method-time">Instant</div>
-          </div>
-          <div class="method-card" onclick="selectMethod(this,'card')">
+          <div class="method-card selected" onclick="selectMethod(this,'card')">
             <div class="method-icon">💳</div>
             <div class="method-name">Visa / Mastercard</div>
             <div class="method-time">Instant</div>
@@ -151,35 +146,16 @@
             <div class="method-name">Crypto (USDT)</div>
             <div class="method-time">~10 mins</div>
           </div>
+          <div class="method-card" onclick="selectMethod(this,'mpesa')">
+            <div class="method-icon">📱</div>
+            <div class="method-name">M-Pesa</div>
+            <div class="method-time">Instant</div>
+          </div>
+
         </div>
 
-        <!-- M-PESA FORM -->
-        <div id="form-mpesa" class="card payment-form active">
-          <div class="card-title">📱 M-Pesa STK Push</div>
-          <div class="form-group">
-            <label class="form-label">M-PESA PHONE NUMBER</label>
-            <input type="tel" class="form-input" id="mpesa-phone" placeholder="+254 7XX XXX XXX">
-          </div>
-          <div class="form-group">
-            <label class="form-label">AMOUNT (USD)</label>
-            <div class="amount-presets">
-              <button class="preset-btn active" onclick="setDepAmount(500,this)">500</button>
-              <button class="preset-btn" onclick="setDepAmount(1000,this)">1,000</button>
-              <button class="preset-btn" onclick="setDepAmount(2500,this)">2,500</button>
-              <button class="preset-btn" onclick="setDepAmount(5000,this)">5,000</button>
-              <button class="preset-btn" onclick="setDepAmount(10000,this)">10,000</button>
-            </div>
-            <input type="number" class="form-input" id="deposit-amount-mpesa" value="500" min="500">
-          </div>
-          <div class="info-box">
-            <strong>Minimum:</strong> USD 500 &nbsp;|&nbsp; <strong>Maximum:</strong> USD 150,000<br>
-            Funds credited instantly. No fees charged by PeakTrader.
-          </div>
-          <button class="btn-confirm" onclick="processDeposit('mpesa')">Deposit via M-Pesa</button>
-        </div>
-
-        <!-- CARD FORM -->
-        <div id="form-card" class="card payment-form">
+        <!-- CARD FORM (default selected) -->
+        <div id="form-card" class="card payment-form active">
           <div class="card-title">💳 Card Payment</div>
           <div class="form-group">
             <label class="form-label">CARD NUMBER</label>
@@ -202,12 +178,16 @@
           <div class="form-group">
             <label class="form-label">AMOUNT (USD)</label>
             <div class="amount-presets">
-              <button class="preset-btn" onclick="setDepAmountCard(1000,this)">1,000</button>
-              <button class="preset-btn active" onclick="setDepAmountCard(5000,this)">5,000</button>
-              <button class="preset-btn" onclick="setDepAmountCard(10000,this)">10,000</button>
-              <button class="preset-btn" onclick="setDepAmountCard(25000,this)">25,000</button>
+              <button class="preset-btn active" onclick="setDepAmountCard(5,this)">$5</button>
+              <button class="preset-btn" onclick="setDepAmountCard(10,this)">$10</button>
+              <button class="preset-btn" onclick="setDepAmountCard(50,this)">$50</button>
+              <button class="preset-btn" onclick="setDepAmountCard(100,this)">$100</button>
             </div>
-            <input type="number" class="form-input" id="deposit-amount-card" value="5000" min="1000">
+            <input type="number" class="form-input" id="deposit-amount-card" value="5" min="5">
+          </div>
+          <div class="info-box">
+            <strong>Minimum:</strong> $5 &nbsp;|&nbsp; <strong>Maximum:</strong> $50,000<br>
+            Funds credited instantly. No fees charged by Lohan.
           </div>
           <div class="info-box blue">
             🔒 Your card details are encrypted and never stored on our servers.
@@ -220,15 +200,15 @@
           <div class="card-title">🏦 Bank Transfer</div>
           <div class="info-box amber" style="margin-bottom:1.25rem">
             <strong style="color:var(--amber)">Transfer funds to:</strong><br><br>
-            <strong>Bank:</strong> Equity Bank Kenya<br>
-            <strong>Account Name:</strong> PeakTrader Ltd<br>
-            <strong>Account Number:</strong> 1234567890123<br>
-            <strong>Branch:</strong> Nairobi — Head Office<br>
-            <strong>Swift Code:</strong> EQBLKENA
+            <strong>Bank:</strong> Chase Bank<br>
+            <strong>Account Name:</strong> Lohan Ltd<br>
+            <strong>Account Number:</strong> 987654321<br>
+            <strong>Routing Number:</strong> 021000021<br>
+            <strong>Swift Code:</strong> CHASUS33
           </div>
           <div class="form-group">
             <label class="form-label">AMOUNT YOU ARE SENDING (USD)</label>
-            <input type="number" class="form-input" id="deposit-amount-bank" value="10000" min="1000">
+            <input type="number" class="form-input" id="deposit-amount-bank" value="5" min="5">
           </div>
           <div class="form-group">
             <label class="form-label">YOUR TRANSACTION REFERENCE / RECEIPT NO.</label>
@@ -236,7 +216,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">YOUR BANK NAME</label>
-            <input type="text" class="form-input" id="bank-name" placeholder="e.g. KCB Bank">
+            <input type="text" class="form-input" id="bank-name" placeholder="e.g. Bank of America">
           </div>
           <div class="info-box">
             After transfer, submit this form. Your account will be credited within 1–2 business days after verification.
@@ -255,12 +235,12 @@
           <div class="form-group" style="margin-top:1rem">
             <label class="form-label">AMOUNT IN USDT</label>
             <div class="amount-presets">
+              <button class="preset-btn active" onclick="setDepAmountCrypto(5,this)">$5</button>
               <button class="preset-btn" onclick="setDepAmountCrypto(10,this)">$10</button>
-              <button class="preset-btn active" onclick="setDepAmountCrypto(50,this)">$50</button>
+              <button class="preset-btn" onclick="setDepAmountCrypto(50,this)">$50</button>
               <button class="preset-btn" onclick="setDepAmountCrypto(100,this)">$100</button>
-              <button class="preset-btn" onclick="setDepAmountCrypto(500,this)">$500</button>
             </div>
-            <input type="number" class="form-input" id="deposit-amount-crypto" value="50" min="10">
+            <input type="number" class="form-input" id="deposit-amount-crypto" value="5" min="5">
           </div>
           <div class="form-group">
             <label class="form-label">YOUR TRANSACTION HASH (TXID)</label>
@@ -270,6 +250,30 @@
             ⚠️ Only send <strong>USDT on the TRC-20 network</strong>. Sending on the wrong network will result in permanent loss of funds.
           </div>
           <button class="btn-confirm" onclick="processDeposit('crypto')">Confirm Crypto Deposit</button>
+        </div>
+
+        <!-- M-PESA FORM -->
+        <div id="form-mpesa" class="card payment-form">
+          <div class="card-title">📱 M-Pesa Payment</div>
+          <div class="form-group">
+            <label class="form-label">M-PESA PHONE NUMBER</label>
+            <input type="tel" class="form-input" id="mpesa-phone" placeholder="+254 7XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">AMOUNT (USD)</label>
+            <div class="amount-presets">
+              <button class="preset-btn active" onclick="setDepAmountMpesa(5,this)">$5</button>
+              <button class="preset-btn" onclick="setDepAmountMpesa(10,this)">$10</button>
+              <button class="preset-btn" onclick="setDepAmountMpesa(50,this)">$50</button>
+              <button class="preset-btn" onclick="setDepAmountMpesa(100,this)">$100</button>
+            </div>
+            <input type="number" class="form-input" id="deposit-amount-mpesa" value="5" min="5">
+          </div>
+          <div class="info-box">
+            <strong>Minimum:</strong> $5 &nbsp;|&nbsp; <strong>Maximum:</strong> $50,000<br>
+            Funds credited instantly after M-Pesa confirmation.
+          </div>
+          <button class="btn-confirm" onclick="processDeposit('mpesa')">Deposit via M-Pesa</button>
         </div>
 
         <div class="disclaimer" style="margin-top:1rem">
@@ -284,15 +288,15 @@
           <div class="summary-grid">
             <div class="summary-item">
               <div class="label">AVAILABLE BALANCE</div>
-              <div class="value" style="color:var(--accent)" id="avail-balance">USD 0</div>
+              <div class="value" style="color:var(--accent)" id="avail-balance">$0.00</div>
             </div>
             <div class="summary-item">
               <div class="label">IN OPEN TRADES</div>
-              <div class="value" style="color:var(--amber)">USD 0</div>
+              <div class="value" style="color:var(--amber)">$0.00</div>
             </div>
             <div class="summary-item">
               <div class="label">WITHDRAWABLE</div>
-              <div class="value" id="withdrawable">USD 0</div>
+              <div class="value" id="withdrawable">$0.00</div>
             </div>
           </div>
           <div class="form-group">
@@ -303,22 +307,30 @@
               <option value="crypto">USDT Wallet</option>
             </select>
           </div>
-          <div class="form-group" id="withdraw-mpesa-field">
+          <div class="form-group" id="withdraw-mpesa-field" style="display:none">
             <label class="form-label">M-PESA PHONE NUMBER</label>
-            <input type="tel" class="form-input" id="withdraw-phone" placeholder="+254 7XX XXX XXX">
+            <input type="tel" class="form-input" id="withdraw-mpesa-phone" placeholder="+254 7XX XXX XXX">
+          </div>
+          <div class="form-group" id="withdraw-bank-field" style="display:none">
+            <label class="form-label">BANK ACCOUNT NUMBER</label>
+            <input type="text" class="form-input" id="withdraw-bank-account" placeholder="e.g. 123456789">
+          </div>
+          <div class="form-group" id="withdraw-crypto-field" style="display:none">
+            <label class="form-label">USDT WALLET ADDRESS (TRC-20)</label>
+            <input type="text" class="form-input" id="withdraw-wallet" placeholder="Paste your TRC-20 wallet address">
           </div>
           <div class="form-group">
             <label class="form-label">AMOUNT TO WITHDRAW (USD)</label>
             <div class="amount-presets">
-              <button class="preset-btn" onclick="setWitAmount(1000,this)">1,000</button>
-              <button class="preset-btn" onclick="setWitAmount(5000,this)">5,000</button>
-              <button class="preset-btn" onclick="setWitAmount(10000,this)">10,000</button>
+              <button class="preset-btn" onclick="setWitAmount(10,this)">$10</button>
+              <button class="preset-btn" onclick="setWitAmount(50,this)">$50</button>
+              <button class="preset-btn" onclick="setWitAmount(100,this)">$100</button>
               <button class="preset-btn" onclick="setWitAmount('all',this)">All</button>
             </div>
-            <input type="number" class="form-input" id="withdraw-amount" value="1000" min="500" style="margin-top:0.5rem">
+            <input type="number" class="form-input" id="withdraw-amount" value="10" min="5" style="margin-top:0.5rem">
           </div>
           <div class="info-box blue">
-            <strong style="color:var(--blue)">Processing time:</strong> M-Pesa withdrawals processed within 24 hours.
+            <strong style="color:var(--blue)">Processing time:</strong> Withdrawals processed within 1–3 business days.
           </div>
           <button class="btn-confirm red" onclick="processWithdrawal()">Request Withdrawal</button>
         </div>
@@ -351,7 +363,7 @@
     if (!localStorage.getItem('token')) window.location.href = '/pages/login.html';
 
     let user = JSON.parse(localStorage.getItem('user') || '{}');
-    let currentMethod = 'mpesa';
+    let currentMethod = 'card';
 
     // Init balance display
     updateBalance(user.balance || 0);
@@ -372,7 +384,7 @@
       document.getElementById('form-' + method).classList.add('active');
     }
 
-    function setDepAmount(amount, btn) {
+    function setDepAmountMpesa(amount, btn) {
       document.querySelectorAll('#form-mpesa .preset-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('deposit-amount-mpesa').value = amount;
@@ -415,33 +427,31 @@
         let payload = { method };
 
         if (method === 'mpesa') {
-          payload.amount = parseInt(document.getElementById('deposit-amount-mpesa').value);
+          payload.amount = parseFloat(document.getElementById('deposit-amount-mpesa').value);
           payload.phoneNumber = document.getElementById('mpesa-phone').value;
-          if (!payload.phoneNumber) throw new Error('Please enter your M-Pesa phone number');
-          if (payload.amount < 500) throw new Error('Minimum deposit is KES 500');
+          if (!payload.phoneNumber) throw new Error('Enter your M-Pesa phone number');
+          if (payload.amount < 5) throw new Error('Minimum M-Pesa deposit is $5');
         } else if (method === 'card') {
-          payload.amount = parseInt(document.getElementById('deposit-amount-card').value);
+          payload.amount = parseFloat(document.getElementById('deposit-amount-card').value);
           payload.cardNumber = document.getElementById('card-number').value.replace(/\s/g,'');
           payload.cardName = document.getElementById('card-name').value;
           if (!payload.cardNumber || payload.cardNumber.length < 16) throw new Error('Enter a valid card number');
           if (!payload.cardName) throw new Error('Enter cardholder name');
-          if (payload.amount < 1000) throw new Error('Minimum card deposit is KES 1,000');
+          if (payload.amount < 5) throw new Error('Minimum card deposit is $5');
         } else if (method === 'bank') {
-          payload.amount = parseInt(document.getElementById('deposit-amount-bank').value);
+          payload.amount = parseFloat(document.getElementById('deposit-amount-bank').value);
           payload.reference = document.getElementById('bank-ref').value;
           payload.bankName = document.getElementById('bank-name').value;
           if (!payload.reference) throw new Error('Enter your bank transaction reference');
-          if (payload.amount < 1000) throw new Error('Minimum bank deposit is KES 1,000');
+          if (payload.amount < 5) throw new Error('Minimum bank deposit is $5');
         } else if (method === 'crypto') {
-          const usdtAmount = parseFloat(document.getElementById('deposit-amount-crypto').value);
-          payload.amount = Math.round(usdtAmount * 130); // approx KES conversion
+          payload.amount = parseFloat(document.getElementById('deposit-amount-crypto').value);
           payload.txid = document.getElementById('crypto-txid').value;
           if (!payload.txid) throw new Error('Enter your transaction hash (TXID)');
-          if (usdtAmount < 10) throw new Error('Minimum crypto deposit is $10 USDT');
+          if (payload.amount < 5) throw new Error('Minimum crypto deposit is $5 USDT');
         }
 
         await api.deposit(payload);
-        showToast('Deposit Submitted ✓', getSuccessMessage(method));
         setTimeout(() => loadTransactions(), 1500);
       } catch (err) {
         showToast('Error', err.message || 'Deposit failed', 'error');
@@ -453,7 +463,7 @@
 
     function getSuccessMessage(method) {
       const msgs = {
-        mpesa: 'Check your phone and enter your M-Pesa PIN.',
+        mpesa: 'Check your phone and enter your M-Pesa PIN to complete.',
         card: 'Payment processed. Funds will reflect shortly.',
         bank: 'Submission received. Account credited within 1–2 days after verification.',
         crypto: 'Deposit submitted. Will be credited after blockchain confirmation.'
@@ -472,15 +482,15 @@
     }
 
     async function processWithdrawal() {
-      const amount = parseInt(document.getElementById('withdraw-amount').value);
+      const amount = parseFloat(document.getElementById('withdraw-amount').value);
       const method = document.getElementById('withdraw-method').value;
 
-      if (amount < 500) return showToast('Error', 'Minimum withdrawal is KES 500', 'error');
+      if (amount < 5) return showToast('Error', 'Minimum withdrawal is $5.00', 'error');
       if (amount > (user.balance || 0)) return showToast('Error', 'Insufficient balance', 'error');
 
       try {
         const res = await api.withdraw({ amount, method });
-        showToast('Withdrawal Requested ✓', 'You will receive funds within 24 hours.');
+        showToast('Withdrawal Requested ✓', 'You will receive funds within 1–3 business days.');
         user.balance = (user.balance || 0) - amount;
         localStorage.setItem('user', JSON.stringify(user));
         updateBalance(user.balance);
@@ -502,7 +512,7 @@
             <td style="color:var(--muted);font-size:0.875rem">${new Date(t.createdAt).toLocaleDateString()}</td>
             <td><span class="badge badge-${t.type === 'deposit' ? 'success' : 'pending'}">${t.type.toUpperCase()}</span></td>
             <td>${t.method}</td>
-            <td>KES ${Math.abs(t.amount).toLocaleString()}</td>
+            <td>$${Math.abs(t.amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
             <td style="color:${t.status === 'completed' ? 'var(--accent)' : 'var(--amber)'};font-weight:600">${t.status.toUpperCase()}</td>
             <td style="font-family:monospace;font-size:0.75rem;color:var(--muted)">${t.reference || '—'}</td>
           </tr>`).join('');
@@ -513,8 +523,9 @@
 
     function updateBalance(balance) {
       user.balance = balance;
-      document.getElementById('avail-balance').textContent = `KES ${Number(balance).toLocaleString()}`;
-      document.getElementById('withdrawable').textContent = `KES ${Number(balance).toLocaleString()}`;
+      const fmt = '$' + Number(balance).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      document.getElementById('avail-balance').textContent = fmt;
+      document.getElementById('withdrawable').textContent = fmt;
     }
 
     function showToast(title, msg, type = 'success') {
@@ -531,10 +542,14 @@
       window.location.href = '/pages/login.html';
     }
 
-    // Show M-Pesa phone field only for mpesa withdrawal
+    // Show relevant field based on withdrawal method
     document.getElementById('withdraw-method').addEventListener('change', function() {
       document.getElementById('withdraw-mpesa-field').style.display =
         this.value === 'mpesa' ? 'block' : 'none';
+      document.getElementById('withdraw-bank-field').style.display =
+        this.value === 'bank' ? 'block' : 'none';
+      document.getElementById('withdraw-crypto-field').style.display =
+        this.value === 'crypto' ? 'block' : 'none';
     });
   </script>
 </body>

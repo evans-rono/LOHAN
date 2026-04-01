@@ -11,10 +11,11 @@ const priceFeed = require('../services/priceFeed');
 // @desc    Place a new trade (real or demo)
 router.post('/', auth, [
   body('asset').notEmpty(),
-  body('direction').isIn(['call', 'put']),
+  body('direction').isIn(['call', 'put', 'even', 'odd', 'over', 'under', 'match', 'differ']),
   body('amount').isFloat({ min: 1 }),
   body('duration').isIn([30, 60, 300, 900]),
-  body('isDemo').optional().isBoolean()
+  body('isDemo').optional().isBoolean(),
+  body('digitPrediction').optional().isInt({ min: 0, max: 9 }) // for match/differ
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -22,7 +23,7 @@ router.post('/', auth, [
   }
 
   try {
-    const { asset, direction, amount, duration, isDemo = false } = req.body;
+    const { asset, direction, amount, duration, isDemo = false, digitPrediction } = req.body;
     const user = req.user;
 
     // Get current price
@@ -33,8 +34,6 @@ router.post('/', auth, [
 
     if (isDemo) {
       // ── DEMO MODE ──
-      // Demo balance lives only in the response — no DB balance touched
-      // We just save the trade flagged as demo for history purposes
       const expiryTime = new Date(Date.now() + duration * 1000);
       const trade = new Trade({
         user: user._id,
@@ -45,8 +44,9 @@ router.post('/', auth, [
         entryPrice: currentPrice,
         expiryTime,
         duration,
-        payoutRate: 0.85,
-        isDemo: true
+        digitPrediction: digitPrediction ?? null,
+        isDemo: true,
+        payoutRate: 1.0,
       });
       await trade.save();
 
@@ -87,7 +87,8 @@ router.post('/', auth, [
       entryPrice: currentPrice,
       expiryTime,
       duration,
-      payoutRate: 0.85,
+      payoutRate: 1.0,
+      digitPrediction: digitPrediction ?? null,
       isDemo: false
     });
 
@@ -166,19 +167,48 @@ async function resolveTrade(tradeId, isDemo) {
     if (!trade || trade.status !== 'active') return;
 
     const exitPrice = priceFeed.getPrice(trade.asset);
-    const won = (trade.direction === 'call' && exitPrice > trade.entryPrice) ||
-                (trade.direction === 'put'  && exitPrice < trade.entryPrice);
+    const lastDigit = Math.round(exitPrice * 10) % 10;
+
+    // Determine win based on contract type
+    let won = false;
+    switch (trade.direction) {
+      case 'call':
+        won = exitPrice > trade.entryPrice;
+        break;
+      case 'put':
+        won = exitPrice < trade.entryPrice;
+        break;
+      case 'even':
+        won = lastDigit % 2 === 0;
+        break;
+      case 'odd':
+        won = lastDigit % 2 !== 0;
+        break;
+      case 'over':
+        won = lastDigit > 5;
+        break;
+      case 'under':
+        won = lastDigit < 5;
+        break;
+      case 'match':
+        won = lastDigit === trade.digitPrediction;
+        break;
+      case 'differ':
+        won = lastDigit !== trade.digitPrediction;
+        break;
+      default:
+        won = exitPrice > trade.entryPrice;
+    }
 
     trade.exitPrice = exitPrice;
     trade.status    = won ? 'won' : 'lost';
-    trade.profit    = won ? trade.amount * trade.payoutRate : -trade.amount; // profit only, not stake
+    trade.profit    = won ? trade.amount * trade.payoutRate : -trade.amount;
     trade.closedAt  = new Date();
     await trade.save();
 
     const user = trade.user;
 
     if (isDemo) {
-      // Demo — emit result but don't touch real balance
       const io = global.io;
       if (io) {
         io.to(user._id.toString()).emit('demoTradeResolved', {
@@ -193,8 +223,8 @@ async function resolveTrade(tradeId, isDemo) {
 
     // Real — update balance and stats
     if (won) {
-      user.balance += trade.amount * (1 + trade.payoutRate); // return stake + profit
-      user.stats.winCount   += 1;
+      user.balance += trade.amount * (1 + trade.payoutRate);
+      user.stats.winCount    += 1;
       user.stats.totalProfit += trade.amount * trade.payoutRate;
     } else {
       user.stats.lossCount += 1;
